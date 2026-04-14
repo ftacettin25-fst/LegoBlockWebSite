@@ -283,6 +283,44 @@ def get_instructions():
         'steps':        sorted_steps,
     })
 
+@app.route('/api/download', methods=['GET'])
+def proxy_download():
+    import urllib.request
+    from flask import Response
+    url = request.args.get('url')
+    if not url:
+        return "No url provided", 400
+    try:
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req) as resp:
+            content = resp.read()
+        # "attachment" forces download instead of opening in browser
+        return Response(
+            content,
+            mimetype="application/octet-stream",
+            headers={"Content-disposition": "attachment; filename=brickheadz.ldr"}
+        )
+    except Exception as e:
+        return str(e), 400
+        
+@app.route('/api/proxy', methods=['GET'])
+def proxy_file():
+    import urllib.request
+    from flask import Response
+    url = request.args.get('url')
+    if not url:
+        return "No url provided", 400
+    try:
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req) as resp:
+            content = resp.read()
+        return Response(
+            content,
+            mimetype="text/plain"
+        )
+    except Exception as e:
+        return str(e), 400
+
 # ---------- API: JOB STATUS ----------
 
 @app.route('/api/job/<job_id>', methods=['GET'])
