@@ -49,17 +49,11 @@ def index():
 
 @app.route('/<path:filename>')
 def static_files(filename):
-    # /api ve /output route'larını buraya düşürme
-    if filename.startswith('api/') or filename.startswith('output/'):
+    # Don't fall through for api routes
+    if filename.startswith('api/'):
         return jsonify({'error': 'Not found'}), 404
     return send_from_directory('.', filename)
 
-
-# ---------- OUTPUT FILES ----------
-
-@app.route('/output/<path:filename>')
-def serve_output(filename):
-    return send_from_directory(os.path.join(SCRIPT_DIR, 'output'), filename)
 
 
 # ---------- API: CREATE ----------
@@ -161,57 +155,35 @@ def create_brickheadz():
             if not os.path.exists(output_path):
                 raise RuntimeError('LDR file could not be created')
 
-            # 11. LDR dosyasını Firebase Storage'a Yükle
+            # 11. Upload LDR to Firebase Storage → returns a signed URL (works from any browser)
             remote_ldr_name = f"jobs/{job_id}/{output_name}"
-            ldr_public_url = upload_file_to_storage(output_path, remote_ldr_name)
+            ldr_signed_url = upload_file_to_storage(output_path, remote_ldr_name)
 
-            # 12. --- İŞTE YENİ KISIM: TXT DOSYASI OLUŞTURMA ---
+            # 12. Info txt → also upload to Firebase as a record
             txt_name = f'info_{job_id[:8]}.txt'
             txt_path = os.path.join(work_dir, txt_name)
-            
-            # Tüm URL'leri txt içine yazıyoruz
             with open(txt_path, "w", encoding="utf-8") as f:
                 f.write(f"Job ID: {job_id}\n")
                 f.write(f"Durum: Tamamlandı\n")
                 f.write(f"Orijinal Fotoğraf (Fal AI): {fal_photo_url}\n")
-                f.write(f"LDR Dosyası (Firebase Storage): {ldr_public_url}\n")
-                
-                # Eğer view URL'lerin falan varsa onları da buraya f.write(...) ile ekleyebilirsin
+                f.write(f"LDR Dosyası (Firebase Storage): {ldr_signed_url}\n")
                 f.write(f"Ekstra Veri: {person_data}\n")
+            try:
+                remote_txt_name = f"jobs/{job_id}/{txt_name}"
+                upload_file_to_storage(txt_path, remote_txt_name)
+            except Exception as txt_err:
+                print(f'[Firebase] TXT upload warning: {txt_err}')
 
-            # 13. TXT dosyasını da Firebase Storage'a yükle
-            txt_name = f'info_{job_id[:8]}.txt'
-            txt_path = os.path.join(work_dir, txt_name)
-            
-            with open(txt_path, "w", encoding="utf-8") as f:
-                f.write(f"Job ID: {job_id}\n")
-                f.write(f"Durum: Tamamlandı\n")
-                f.write(f"Orijinal Fotoğraf (Fal AI): {fal_photo_url}\n")
-                
-                # Eğer kodunda view_urls değişkeni varsa, onları da txt'ye yazdıralım:
-                if 'view_urls' in locals():
-                    f.write("\n--- Uretilen Acilar ---\n")
-                    for angle, url in view_urls.items():
-                        f.write(f"{angle}: {url}\n")
-                
-                f.write(f"\nLDR Dosyası (Firebase Storage): {ldr_public_url}\n")
-                f.write(f"Ekstra Veri: {person_data}\n")
-
-            remote_txt_name = f"jobs/{job_id}/{txt_name}"
-            txt_public_url = upload_file_to_storage(txt_path, remote_txt_name)
-            # İşlem bitti, Frontend'e URL'leri dön
             return jsonify({
-                'success':      True,
-                'message':      'BrickHeadz model created successfully!',
-                'job_id':       job_id,
-                'ldr_url':      ldr_public_url,
-                'info_txt_url': txt_public_url, # Yeni txt dosyamızın linki!
-                'person_data':  person_data,
+                'success':     True,
+                'message':     'BrickHeadz model created successfully!',
+                'job_id':      job_id,
+                'ldr_url':     ldr_signed_url,
+                'person_data': person_data,
             })
 
         except Exception as e:
             traceback.print_exc()
-            # Hata durumunda da istersen bir error.txt yükleyebilirsin Storage'a
             return jsonify({'error': str(e), 'job_id': job_id}), 500
 
         finally:

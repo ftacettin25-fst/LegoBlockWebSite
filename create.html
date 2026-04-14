@@ -887,7 +887,7 @@
         const data = await response.json();
 
         if (response.ok && data.success) {
-          document.getElementById('download-link').href = '/api/download?url=' + encodeURIComponent(data.ldr_url);
+          document.getElementById('download-link').href = data.ldr_url;
           document.getElementById('download-link').download = 'brickheadz.ldr';
 
           // Appearance chips from person_data
@@ -910,7 +910,7 @@
 
           document.getElementById('result-section').classList.add('visible');
           document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
-          if (window.initLdrViewer) window.initLdrViewer('/api/proxy?url=' + encodeURIComponent(data.ldr_url));
+          if (window.initLdrViewer) window.initLdrViewer(data.ldr_url);
 
         } else {
           showError(data.error || 'An unknown error occurred.');
