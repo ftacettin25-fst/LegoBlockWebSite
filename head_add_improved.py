@@ -1105,7 +1105,7 @@ def main():
         return
 
     # ── STEP 3: Arm detection ─────────────────────────────────────────────────
-    arms_top = find_arm(image_paths[0])
+    arms_top = 13
     print(f"\n[MAIN] Arm top layer: {arms_top}")
 
     # ── STEP 4: Grid analysis for each view ───────────────────────────────────
