@@ -30,7 +30,7 @@ spec.loader.exec_module(pipeline)
 # Import database layer
 from db import (
     init_firebase,
-    upload_file_to_storage
+    upload_blob_to_storage
 )
 # Initialize Firebase on startup
 init_firebase()
@@ -155,9 +155,9 @@ def create_brickheadz():
             if not os.path.exists(output_path):
                 raise RuntimeError('LDR file could not be created')
 
-            # 11. Upload LDR to Firebase Storage → returns a signed URL (works from any browser)
-            remote_ldr_name = f"jobs/{job_id}/{output_name}"
-            ldr_signed_url = upload_file_to_storage(output_path, remote_ldr_name)
+            # 11. Upload LDR to Firebase Storage
+            remote_ldr_path = f"jobs/{job_id}/{output_name}"
+            upload_blob_to_storage(output_path, remote_ldr_path)
 
             # 12. Info txt → also upload to Firebase as a record
             txt_name = f'info_{job_id[:8]}.txt'
@@ -166,20 +166,22 @@ def create_brickheadz():
                 f.write(f"Job ID: {job_id}\n")
                 f.write(f"Durum: Tamamlandı\n")
                 f.write(f"Orijinal Fotoğraf (Fal AI): {fal_photo_url}\n")
-                f.write(f"LDR Dosyası (Firebase Storage): {ldr_signed_url}\n")
+                f.write(f"Firebase LDR yolu: {remote_ldr_path}\n")
                 f.write(f"Ekstra Veri: {person_data}\n")
             try:
-                remote_txt_name = f"jobs/{job_id}/{txt_name}"
-                upload_file_to_storage(txt_path, remote_txt_name)
+                remote_txt_path = f"jobs/{job_id}/{txt_name}"
+                upload_blob_to_storage(txt_path, remote_txt_path)
             except Exception as txt_err:
                 print(f'[Firebase] TXT upload warning: {txt_err}')
 
+            # Both URLs go through our own Flask server — same origin, no CORS, download works
             return jsonify({
-                'success':     True,
-                'message':     'BrickHeadz model created successfully!',
-                'job_id':      job_id,
-                'ldr_url':     ldr_signed_url,
-                'person_data': person_data,
+                'success':      True,
+                'message':      'BrickHeadz model created successfully!',
+                'job_id':       job_id,
+                'ldr_url':      f'/api/ldr/{remote_ldr_path}',
+                'download_url': f'/api/download/{remote_ldr_path}',
+                'person_data':  person_data,
             })
 
         except Exception as e:
@@ -191,6 +193,47 @@ def create_brickheadz():
                 shutil.rmtree(work_dir, ignore_errors=True)
             except Exception:
                 pass
+
+
+# ---------- FIREBASE FILE PROXY ROUTES ----------
+# These routes stream files from Firebase through Flask (same origin as Render site)
+# so the browser treats them as same-origin — download attribute works, no CORS.
+
+@app.route('/api/download/<path:blob_path>')
+def download_ldr(blob_path):
+    """Stream a file from Firebase Storage to the browser as a download attachment."""
+    from firebase_admin import storage as fb_storage
+    from flask import Response
+    try:
+        bucket = fb_storage.bucket()
+        blob = bucket.blob(blob_path)
+        data = blob.download_as_bytes()
+        filename = blob_path.split('/')[-1]
+        return Response(
+            data,
+            mimetype='application/octet-stream',
+            headers={'Content-Disposition': f'attachment; filename="{filename}"'}
+        )
+    except Exception as e:
+        return jsonify({'error': str(e)}), 404
+
+
+@app.route('/api/ldr/<path:blob_path>')
+def serve_ldr_text(blob_path):
+    """Stream an LDR file from Firebase as plain text (used by the 3D viewer)."""
+    from firebase_admin import storage as fb_storage
+    from flask import Response
+    try:
+        bucket = fb_storage.bucket()
+        blob = bucket.blob(blob_path)
+        data = blob.download_as_bytes()
+        return Response(
+            data,
+            mimetype='text/plain',
+            headers={'Access-Control-Allow-Origin': '*'}
+        )
+    except Exception as e:
+        return jsonify({'error': str(e)}), 404
 
 @app.route('/api/instructions', methods=['GET'])
 def get_instructions():

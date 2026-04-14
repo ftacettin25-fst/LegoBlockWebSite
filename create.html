@@ -887,7 +887,7 @@
         const data = await response.json();
 
         if (response.ok && data.success) {
-          document.getElementById('download-link').href = data.ldr_url;
+          document.getElementById('download-link').href = data.download_url;
           document.getElementById('download-link').download = 'brickheadz.ldr';
 
           // Appearance chips from person_data

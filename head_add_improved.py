@@ -906,7 +906,7 @@ def save_merged_to_ldr(space_matrix, head_filename, output_filename, hair_data: 
     else:
         max_gz   = 0
 
-    offset_y = -(max_gz + 1) * PLATE_H
+    offset_y = -(max_gz) * PLATE_H
 
     # Determine hair snippet path
     hair_type    = hair_data.get("hair_type", "default")       if hair_data else "default"
@@ -962,39 +962,74 @@ def save_merged_to_ldr(space_matrix, head_filename, output_filename, hair_data: 
         f_out.write(f"1 {sc} {3*STUD+26.0} {armsmod_posy} {arms_posz} "
                     f"0 -1 -0.000001 0 0 -1 1 0 0 11476.dat\n")
 
-        # Head
-        print(f"  [HEAD] Looking for head file: '{head_filename}'")
-        print(f"  [HEAD] File exists: {os.path.exists(head_filename)}")
+        # Target body center and top
+        max_gx = max((block[0] + block[3] - 1) for block in merged_blocks) if merged_blocks else 3
+        max_gy = max((block[1] + block[4] - 1) for block in merged_blocks) if merged_blocks else 3
+        
+        target_center_x = max_gx * STUD / 2.0
+        target_center_z = max_gy * STUD / 2.0
+        target_top_y = offset_y
+        
+        # --- HEAD PRE-SCAN ---
+        # The snippets are built with arbitrary origins in Studio.
+        # We must find the core (3003.dat or 22885.dat of skin color) to center them properly.
+        core_xs_3003, core_zs_3003, max_y_3003 = [], [], None
+        core_xs_22885, core_zs_22885, max_y_22885 = [], [], None
+        max_y_any, avg_x_any, avg_z_any = None, [], []
+
         if os.path.exists(head_filename):
-            # arms_top = omuz katmanı (body layer index).
-            # Head LDR'da Y negatif = yukarı yön.
-            # Omuz hizasının üstündeki brick'ler (saç dahil) atlanır;
-            # onların yerine ayrı hair snippet ekleniyor.
-            # Head LDR kendi koordinat sisteminde yazılmış (offset henüz eklenmemiş),
-            # bu yüzden eşiği offset_y'ye göre değil ham Y'ye göre hesaplıyoruz.
-            # Omuz hizası: body'de arms_top layer → head'de buna karşılık gelen
-            # en yüksek (en negatif) Y sınırını bulmak için head'in tüm Y'lerini tarayıp
-            # en tepedeki arms_top kadar layer'ı atlıyoruz.
+            with open(head_filename, "r", encoding="utf-8") as f_head:
+                for line in f_head:
+                    parts = line.strip().split()
+                    if len(parts) >= 15 and parts[0] == "1":
+                        col = parts[1]
+                        if col in ["71", "89", "78", "84", "92", "15", "19", "28"]:
+                            x, y, z = float(parts[2]), float(parts[3]), float(parts[4])
+                            
+                            if max_y_any is None or y > max_y_any: max_y_any = y
+                            avg_x_any.append(x)
+                            avg_z_any.append(z)
+                            
+                            part_name = parts[14].lower()
+                            if "3003" in part_name:
+                                core_xs_3003.append(x)
+                                core_zs_3003.append(z)
+                                if max_y_3003 is None or y > max_y_3003: max_y_3003 = y
+                            elif "22885" in part_name:
+                                core_xs_22885.append(x)
+                                core_zs_22885.append(z)
+                                if max_y_22885 is None or y > max_y_22885: max_y_22885 = y
 
-            # Pass 1: head LDR'daki tüm unique Y'leri topla
-            head_y_layers = set()
-            with open(head_filename, "r", encoding="utf-8") as f_scan:
-                for line in f_scan:
-                    p = line.strip().split()
-                    if p and p[0] == "1" and len(p) >= 15:
-                        head_y_layers.add(float(p[3]))
+        snippet_bottom = -48.0 
+        snippet_center_x = 0.0
+        snippet_center_z = -20.0
+        
+        if core_xs_3003:
+            snippet_center_x = sum(core_xs_3003) / len(core_xs_3003)
+            snippet_center_z = sum(core_zs_3003) / len(core_zs_3003)
+            snippet_bottom = max_y_3003 + 24
+        elif core_xs_22885:
+            snippet_center_x = sum(core_xs_22885) / len(core_xs_22885)
+            snippet_center_z = sum(core_zs_22885) / len(core_zs_22885)
+            snippet_bottom = max_y_22885 + 24
+        elif avg_x_any:
+            snippet_center_x = sum(avg_x_any) / len(avg_x_any)
+            snippet_center_z = (max(avg_z_any) + min(avg_z_any)) / 2.0
+            snippet_bottom = max_y_any + 8
+            
+        shift_x = target_center_x - snippet_center_x
+        shift_y = target_top_y - snippet_bottom
+        shift_z = target_center_z - snippet_center_z
+        
+        print(f"  [HEAD ALIGN] Snippet Base Y: {snippet_bottom:.1f} → Target: {target_top_y:.1f} (Shift: {shift_y:+.1f})")
+        print(f"  [HEAD ALIGN] Snippet Mid X/Z: {snippet_center_x:.1f},{snippet_center_z:.1f} → Target: {target_center_x:.1f},{target_center_z:.1f}")
 
-            # Küçükten büyüğe sırala → en negatif = en tepedeki layer
-            sorted_y = sorted(head_y_layers)
-
-            # arms_top kadar üst layer'ı atla (bunlar saç + üst kafayla örtüşen alan)
-            skip_count = arms_top if arms_top else 0
-            skip_y     = set(sorted_y[:skip_count])
-            print(f"  [HEAD] Total Y layers : {len(sorted_y)}")
-            print(f"  [HEAD] Skipping top {skip_count} layers (arms_top={arms_top}): {sorted(skip_y)}")
-
-            # Pass 2: head'i yaz, üst katmanları atla
-            f_out.write("0 // --- Head Start (top layers skipped via arms_top) ---\n")
+        # Head & Hair Snippet
+        # The hair snippet (.ldr) contains the complete head structure (both skin and hair).
+        # We append it once, recoloring the skin placeholder (71, 89) and hair placeholder (219 or 999).
+        print(f"  [HEAD/HAIR] Processing complete head snippet: '{head_filename}'")
+        if os.path.exists(head_filename):
+            f_out.write(f"0 // --- Head & Hair ({hair_type}) Start ---\n")
             with open(head_filename, "r", encoding="utf-8") as f_head:
                 for line in f_head:
                     line = line.strip()
@@ -1002,38 +1037,28 @@ def save_merged_to_ldr(space_matrix, head_filename, output_filename, hair_data: 
                         continue
                     parts = line.split()
                     if parts[0] == "1" and len(parts) >= 15:
+                        orig_x = float(parts[2])
                         orig_y = float(parts[3])
-                        if orig_y in skip_y:
-                            continue          # omuz üstü → saç snippet'e bırak
-                        parts[3] = f"{orig_y + offset_y:.6f}"
-                        if parts[1] == "71":
+                        orig_z = float(parts[4])
+                        
+                        parts[2] = f"{orig_x + shift_x:.6f}"
+                        parts[3] = f"{orig_y + shift_y:.6f}"
+                        parts[4] = f"{orig_z + shift_z:.6f}"
+                        
+                        # Recolor skin
+                        if parts[1] in ["71", "89"]:
                             parts[1] = str(sc)
-                        f_out.write(" ".join(parts) + "\n")
-                    elif parts[0] == "0" and "FILE" not in line and "Name:" not in line:
-                        f_out.write(line + "\n")
-            f_out.write("0 // --- Head End ---\n\n")
-
-        # ── HAIR SNIPPET ──────────────────────────────────────────────────────
-        if os.path.exists(hair_snippet):
-            f_out.write(f"0 // --- Hair ({hair_type}) Start ---\n")
-            with open(hair_snippet, "r", encoding="utf-8") as f_hair:
-                for line in f_hair:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    parts = line.split()
-                    if parts[0] == "1" and len(parts) >= 15:
-                        orig_y   = float(parts[3])
-                        parts[3] = f"{orig_y + offset_y:.6f}"
-                        # Recolor any placeholder color (e.g. 999) to detected hair color
-                        if parts[1] == "999":
+                            
+                        # Recolor hair (some snippets use 999, others 219)
+                        if parts[1] in ["999", "219"]:
                             parts[1] = str(hair_color)
+                            
                         f_out.write(" ".join(parts) + "\n")
                     elif parts[0] == "0" and "FILE" not in line and "Name:" not in line:
                         f_out.write(line + "\n")
-            f_out.write(f"0 // --- Hair ({hair_type}) End ---\n\n")
+            f_out.write(f"0 // --- Head & Hair ({hair_type}) End ---\n\n")
         else:
-            print(f"  [HAIR] WARNING: snippet not found at '{hair_snippet}', skipping hair layer.")
+            print(f"  [HEAD/HAIR] WARNING: snippet not found at '{head_filename}'")
 
         # Body
         f_out.write("0 // --- Body Start ---\n")
