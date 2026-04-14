@@ -997,98 +997,222 @@
       }
       ldrawLoader.preloadMaterials('/static/ldraw/LDConfig.ldr').then(() => loadModel()).catch(() => loadModel());
 
-      // PDF engine
+      // ===== PDF BUILD GUIDE ENGINE =====
       const pdfBtn = document.getElementById('btn-pdf');
       const newBtn = pdfBtn.cloneNode(true);
       pdfBtn.parentNode.replaceChild(newBtn, pdfBtn);
 
       newBtn.addEventListener('click', async () => {
-        if (!loadedModelGroup) { alert('Model still loading, please wait.'); return; }
-        newBtn.style.opacity = '0.7'; newBtn.disabled = true;
+        if (!loadedModelGroup) { alert('3D model is still loading. Please wait a moment.'); return; }
+        newBtn.style.opacity = '0.7';
+        newBtn.disabled = true;
 
         const delay = ms => new Promise(r => setTimeout(r, ms));
-        const ldrText = await fetch(ldrUrl).then(r => r.text());
 
-        const colorMap = { "0": "#05131D", "1": "#0055BF", "2": "#237841", "4": "#C91A09", "14": "#F2CD37", "15": "#FFFFFF", "16": "#FFFFFF", "71": "#A0A5A9", "72": "#6C6E68" };
-        const partNameMap = { "3024": "1x1 Plate", "3023": "2x1 Plate", "3022": "2x2 Plate", "3623": "3x1 Plate", "3710": "4x1 Plate", "3021": "3x2 Plate", "3020": "4x2 Plate" };
+        // Step 1: Fetch LDR text
+        newBtn.innerHTML = 'Fetching model data... ⏳';
+        let ldrText;
+        try {
+          ldrText = await fetch(ldrUrl).then(r => r.text());
+        } catch (e) {
+          alert('Could not load LDR file: ' + e.message);
+          newBtn.style.opacity = '1'; newBtn.disabled = false;
+          newBtn.innerHTML = 'PDF Build Guide <span class="btn-icon">📄</span>';
+          return;
+        }
 
-        const partsByY = {}; const uniqueParts = new Set();
+        const colorMap = {
+          "0": "#05131D", "1": "#0055BF", "2": "#237841", "4": "#C91A09",
+          "14": "#F2CD37", "15": "#FFFFFF", "16": "#FFFFFF",
+          "71": "#A0A5A9", "72": "#6C6E68", "25": "#EB6400", "22": "#81007B"
+        };
+        const colorNameMap = {
+          "0": "Black", "1": "Blue", "2": "Green", "4": "Red",
+          "14": "Yellow", "15": "White", "16": "White",
+          "71": "Lt. Gray", "72": "Dk. Gray", "25": "Orange", "22": "Purple"
+        };
+        const partNameMap = {
+          "3024": "1x1 Plate", "3023": "1x2 Plate", "3022": "2x2 Plate",
+          "3623": "1x3 Plate", "3710": "1x4 Plate", "3021": "2x3 Plate",
+          "3020": "2x4 Plate", "3666": "1x6 Plate", "3034": "1x8 Plate",
+          "3070b": "1x1 Tile", "3069b": "1x2 Tile",
+          "3001": "2x4 Brick", "3003": "2x2 Brick", "3004": "1x2 Brick",
+          "3005": "1x1 Brick", "3010": "1x4 Brick",
+          "6141": "1x1 Round Plate", "4073": "1x1 Round Plate"
+        };
+
+        // Step 2: Parse type-1 lines in order — index maps to loadedModelGroup.children[i]
+        const partLines = [];
         ldrText.split('\n').forEach(line => {
           const t = line.trim().split(/\s+/);
-          if (t[0] !== '1') return;
-          const colorId = t[1], yPos = parseFloat(t[3]);
-          const partFile = t[14].replace('.dat', '').replace('.ldr', '');
-          if (!partsByY[yPos]) partsByY[yPos] = {};
-          const key = colorId + '_' + partFile;
-          if (!partsByY[yPos][key]) partsByY[yPos][key] = { cacheKey: key, count: 0, colorHex: colorMap[colorId] || '#ccc', name: partNameMap[partFile] || 'Part ' + partFile };
-          partsByY[yPos][key].count++; uniqueParts.add(colorId + '|' + partFile);
+          if (t[0] !== '1' || t.length < 15) return;
+          partLines.push({
+            y: Math.round(parseFloat(t[3])),
+            colorId: t[1],
+            partFile: t[14].replace(/\.(dat|ldr)$/i, ''),
+            childIndex: partLines.length
+          });
         });
 
-        const thumbCanvas = document.createElement('canvas'); thumbCanvas.width = thumbCanvas.height = 120;
-        const thumbR = new THREE.WebGLRenderer({ canvas: thumbCanvas, alpha: true, antialias: false });
-        const tScene = new THREE.Scene(); tScene.add(new THREE.AmbientLight(0xffffff, .7));
-        const tl = new THREE.DirectionalLight(0xffffff, .8); tl.position.set(1, 2, 3); tScene.add(tl);
-        const tCam = new THREE.PerspectiveCamera(45, 1, .1, 1000);
-        const thumbCache = {};
-
-        for (const item of Array.from(uniqueParts)) {
-          const [colorId, partFile] = item.split('|');
-          newBtn.innerHTML = 'Preparing parts ⏳';
-          await delay(20);
-          await new Promise(resolve => {
-            try {
-              ldrawLoader.parse('0 LDraw\n1 16 0 0 0 1 0 0 0 1 0 0 0 1 ' + partFile + '.dat', '/static/ldraw/', group => {
-                group.traverse(c => { if (c.isMesh) { c.material = c.material.clone(); c.material.color.set(colorMap[colorId] || '#ccc'); } });
-                const box = new THREE.Box3().setFromObject(group);
-                const center = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3());
-                group.position.set(-center.x, -center.y, -center.z); group.rotation.x = Math.PI;
-                tScene.add(group);
-                const md = Math.max(size.x, size.y, size.z) || 20;
-                tCam.position.set(md * 1.5, md * 1.2, md * 1.5); tCam.lookAt(0, 0, 0);
-                thumbR.render(tScene, tCam);
-                thumbCache[colorId + '_' + partFile] = thumbCanvas.toDataURL('image/png');
-                tScene.remove(group); resolve();
-              });
-            } catch (e) { resolve(); }
-          });
+        if (partLines.length === 0) {
+          alert('No brick data found in the LDR file.');
+          newBtn.style.opacity = '1'; newBtn.disabled = false;
+          newBtn.innerHTML = 'PDF Build Guide <span class="btn-icon">📄</span>';
+          return;
         }
 
-        const sortedTextY = Object.keys(partsByY).map(Number).sort((a, b) => b - a);
+        // Step 3: Group child indices by LDR Y coordinate
+        const indicesByY = {};
+        partLines.forEach(p => {
+          if (!indicesByY[p.y]) indicesByY[p.y] = [];
+          indicesByY[p.y].push(p.childIndex);
+        });
+
+        // Higher Y = lower in LDraw = build first. Sort descending.
+        const sortedYs = Object.keys(indicesByY).map(Number).sort((a, b) => b - a);
+
+        // Step 4: Pair Y-layers into steps of 2 (each step adds 2 height-levels cumulatively)
+        const buildSteps = [];
+        for (let i = 0; i < sortedYs.length; i += 2) {
+          buildSteps.push(sortedYs.slice(i, i + 2));
+        }
+
+        // Step 5: Hide everything to start from scratch
+        loadedModelGroup.traverse(obj => { obj.visible = false; });
+        loadedModelGroup.visible = true;
+
+        // Step 6: Build PDF page by page
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('landscape', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfW = pdf.internal.pageSize.getWidth();
+        const pdfH = pdf.internal.pageSize.getHeight();
 
-        loadedModelGroup.children.forEach(c => c.visible = false);
-        const layers = {};
-        loadedModelGroup.children.forEach(mesh => { const y = Math.round(mesh.position.y); if (!layers[y]) layers[y] = []; layers[y].push(mesh); });
-        const sortedY = Object.keys(layers).map(Number).sort((a, b) => b - a);
-
-        for (let i = 0; i < sortedY.length; i++) {
-          newBtn.innerHTML = 'Building PDF ' + (i + 1) + '/' + sortedY.length + ' ⏳';
+        for (let stepIdx = 0; stepIdx < buildSteps.length; stepIdx++) {
+          newBtn.innerHTML = 'Step ' + (stepIdx + 1) + ' / ' + buildSteps.length + ' ⏳';
           await delay(30);
-          layers[sortedY[i]].forEach(m => m.visible = true);
-          renderer.render(scene, camera);
-          const imgData = renderer.domElement.toDataURL('image/jpeg', .7);
-          if (i > 0) pdf.addPage();
-          pdf.setFontSize(22); pdf.setTextColor(220, 53, 69); pdf.text('Step ' + (i + 1), 15, 20);
-          const iR = viewerEl.clientHeight / viewerEl.clientWidth, iW = pdfWidth - 85, iH = iW * iR;
-          pdf.addImage(imgData, 'JPEG', 15, 30, iW, iH);
-          let lX = pdfWidth - 65, lY = 25;
-          pdf.setFontSize(14); pdf.setTextColor(0, 0, 0); pdf.text('Required Parts:', lX, lY); lY += 10;
-          pdf.setFontSize(11);
-          Object.values(partsByY[sortedTextY[i]] || {}).forEach(part => {
-            const tb = thumbCache[part.cacheKey];
-            if (tb) pdf.addImage(tb, 'PNG', lX - 4, lY - 8, 14, 14);
-            else { pdf.setFillColor(part.colorHex); pdf.rect(lX, lY - 4, 6, 6, 'F'); }
-            pdf.setTextColor(50, 50, 50); pdf.text(part.count + 'x   ' + part.name, lX + 12, lY + 1); lY += 14;
+
+          const stepYs = buildSteps[stepIdx];
+
+          // Collect new parts added this step
+          const newParts = {};
+          stepYs.forEach(y => {
+            indicesByY[y].forEach(ci => {
+              const p = partLines[ci];
+              const key = p.colorId + '_' + p.partFile;
+              if (!newParts[key]) {
+                newParts[key] = {
+                  colorHex: colorMap[p.colorId] || '#aaa',
+                  colorName: colorNameMap[p.colorId] || ('Color ' + p.colorId),
+                  partName: partNameMap[p.partFile] || p.partFile,
+                  count: 0
+                };
+              }
+              newParts[key].count++;
+
+              // Make this child visible (cumulative — stays visible in future steps too)
+              const child = loadedModelGroup.children[ci];
+              if (child) child.traverse(o => { o.visible = true; });
+            });
           });
+
+          renderer.render(scene, camera);
+          await delay(20);
+          const imgData = renderer.domElement.toDataURL('image/jpeg', 0.85);
+
+          // --- PDF page layout ---
+          if (stepIdx > 0) pdf.addPage();
+
+          // Dark background
+          pdf.setFillColor(18, 18, 30);
+          pdf.rect(0, 0, pdfW, pdfH, 'F');
+
+          // Step badge
+          pdf.setFillColor(139, 47, 142);
+          pdf.roundedRect(10, 8, 38, 14, 3, 3, 'F');
+          pdf.setFontSize(16);
+          pdf.setTextColor(255, 255, 255);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text('STEP ' + (stepIdx + 1), 29, 18, { align: 'center' });
+
+          // Guide title
+          pdf.setFontSize(9);
+          pdf.setTextColor(160, 160, 180);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text('Grids2Bricks Build Guide', pdfW / 2, 18, { align: 'center' });
+
+          // Progress bar
+          const barX = 52, barY = 13, barW = pdfW - 62 - 68, barH = 4;
+          pdf.setFillColor(40, 40, 60);
+          pdf.roundedRect(barX, barY, barW, barH, 2, 2, 'F');
+          pdf.setFillColor(139, 47, 142);
+          pdf.roundedRect(barX, barY, barW * ((stepIdx + 1) / buildSteps.length), barH, 2, 2, 'F');
+
+          // 3D screenshot
+          const imgX = 10, imgY = 26, imgW = pdfW - 80, imgH = pdfH - 36;
+          pdf.addImage(imgData, 'JPEG', imgX, imgY, imgW, imgH);
+
+          // Parts panel (right side)
+          const panelX = pdfW - 66, panelY = 26, panelW = 60, panelH = pdfH - 36;
+          pdf.setFillColor(28, 28, 48);
+          pdf.roundedRect(panelX, panelY, panelW, panelH, 3, 3, 'F');
+
+          pdf.setFontSize(7.5);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(200, 160, 255);
+          pdf.text('ADD THIS STEP', panelX + panelW / 2, panelY + 8, { align: 'center' });
+          pdf.setDrawColor(139, 47, 142);
+          pdf.setLineWidth(0.3);
+          pdf.line(panelX + 4, panelY + 11, panelX + panelW - 4, panelY + 11);
+
+          let partY = panelY + 17;
+          const partEntries = Object.values(newParts);
+          partEntries.forEach(part => {
+            if (partY > panelY + panelH - 12) return;
+            const hex = part.colorHex;
+            const r = parseInt(hex.slice(1, 3), 16) || 0;
+            const g = parseInt(hex.slice(3, 5), 16) || 0;
+            const b = parseInt(hex.slice(5, 7), 16) || 0;
+            pdf.setFillColor(r, g, b);
+            pdf.roundedRect(panelX + 4, partY - 3.5, 6, 5, 1, 1, 'F');
+            pdf.setDrawColor(100, 100, 120);
+            pdf.setLineWidth(0.2);
+            pdf.roundedRect(panelX + 4, partY - 3.5, 6, 5, 1, 1, 'S');
+
+            pdf.setFillColor(139, 47, 142);
+            pdf.roundedRect(panelX + 12, partY - 3.5, 8, 5, 1, 1, 'F');
+            pdf.setFontSize(6.5);
+            pdf.setTextColor(255, 255, 255);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('x' + part.count, panelX + 16, partY + 0.5, { align: 'center' });
+
+            pdf.setFont('helvetica', 'normal');
+            pdf.setFontSize(6.5);
+            pdf.setTextColor(210, 210, 230);
+            const pname = part.partName.length > 14 ? part.partName.slice(0, 13) + '…' : part.partName;
+            pdf.text(pname, panelX + 22, partY + 0.5);
+            pdf.setFontSize(5.5);
+            pdf.setTextColor(140, 140, 160);
+            pdf.text(part.colorName, panelX + 22, partY + 5);
+            partY += 13;
+          });
+
+          // Bottom total
+          const totalNew = partEntries.reduce((s, p) => s + p.count, 0);
+          pdf.setFillColor(40, 40, 60);
+          pdf.roundedRect(panelX + 4, panelY + panelH - 10, panelW - 8, 8, 2, 2, 'F');
+          pdf.setFontSize(7);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(200, 200, 220);
+          pdf.text(totalNew + ' brick' + (totalNew !== 1 ? 's' : '') + ' added', panelX + panelW / 2, panelY + panelH - 5.5, { align: 'center' });
         }
 
+        // Step 7: Save and restore full model
         pdf.save('Grids2Bricks_Build_Guide.pdf');
-        loadedModelGroup.children.forEach(c => c.visible = true);
+        loadedModelGroup.traverse(obj => { obj.visible = true; });
         renderer.render(scene, camera);
         newBtn.innerHTML = 'PDF Build Guide <span class="btn-icon">📄</span>';
-        newBtn.style.opacity = '1'; newBtn.disabled = false;
+        newBtn.style.opacity = '1';
+        newBtn.disabled = false;
       });
     };
   </script>
