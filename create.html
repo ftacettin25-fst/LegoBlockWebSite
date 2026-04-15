@@ -1077,7 +1077,29 @@
           buildSteps.push(sortedYs.slice(i, i + 2));
         }
 
-        // Step 5: Hide everything to start from scratch
+        // Step 5: Save camera state and set a fixed PDF perspective
+        const savedCamPos = camera.position.clone();
+        const savedTarget = controls.target.clone();
+
+        // Compute model size to position camera at the right distance
+        const pdfBox = new THREE.Box3().setFromObject(loadedModelGroup);
+        const pdfSize = pdfBox.getSize(new THREE.Vector3());
+        const pdfMaxDim = Math.max(pdfSize.x, pdfSize.y, pdfSize.z);
+        const pdfFov = camera.fov * (Math.PI / 180);
+        const pdfDist = Math.abs((pdfMaxDim / 2) / Math.tan(pdfFov / 2)) * 1.8;
+
+        // Fixed top-left isometric angle (classic LEGO instruction perspective)
+        const pdfCamPos = new THREE.Vector3(
+          -pdfDist * 0.7,   // left offset
+           pdfDist * 0.6,   // top offset
+           pdfDist          // depth
+        );
+        controls.target.set(0, 0, 0);
+        camera.position.copy(pdfCamPos);
+        camera.lookAt(0, 0, 0);
+        controls.update();
+
+        // Hide everything to start from scratch
         loadedModelGroup.traverse(obj => { obj.visible = false; });
         loadedModelGroup.visible = true;
 
@@ -1115,6 +1137,11 @@
             });
           });
 
+          // Ensure the fixed PDF camera is applied for every screenshot
+          camera.position.copy(pdfCamPos);
+          camera.lookAt(0, 0, 0);
+          controls.target.set(0, 0, 0);
+          controls.update();
           renderer.render(scene, camera);
           await delay(20);
           const imgData = renderer.domElement.toDataURL('image/jpeg', 0.85);
@@ -1206,9 +1233,13 @@
           pdf.text(totalNew + ' brick' + (totalNew !== 1 ? 's' : '') + ' added', panelX + panelW / 2, panelY + panelH - 5.5, { align: 'center' });
         }
 
-        // Step 7: Save and restore full model
+        // Step 7: Save PDF, restore full model and original camera
         pdf.save('Grids2Bricks_Build_Guide.pdf');
         loadedModelGroup.traverse(obj => { obj.visible = true; });
+        camera.position.copy(savedCamPos);
+        controls.target.copy(savedTarget);
+        camera.lookAt(savedTarget);
+        controls.update();
         renderer.render(scene, camera);
         newBtn.innerHTML = 'PDF Build Guide <span class="btn-icon">📄</span>';
         newBtn.style.opacity = '1';
