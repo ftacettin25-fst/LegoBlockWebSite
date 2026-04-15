@@ -32,14 +32,19 @@ os.makedirs(GENERATED_DIR, exist_ok=True)
 # Mapping: hair_type (string from Claude) → LDR snippet file
 # Add/adjust snippet files to match your library.
 HAIR_LDR_MAP = {
-    "short_straight":  "hair_snippets/short_straight.ldr",
-    "short_curly":     "hair_snippets/short_curly.ldr",
-    "long_straight":   "hair_snippets/long_straight.ldr",
-    "long_curly":      "hair_snippets/long_curly.ldr",
-    "wavy":            "hair_snippets/wavy.ldr",
-    "bald":            "hair_snippets/bald.ldr",
-    "afro":            "hair_snippets/afro.ldr",
-    "default":         "hair_snippets/default.ldr",  # fallback
+    "short_straight_female":            "hair_snippets/short_straight_female.ldr",
+    "short_straight_male":              "hair_snippets/short_straight_male.ldr",
+    #"short_curly":     "hair_snippets/short_curly.ldr",
+    "long_straight_kahkulsuz_female":   "hair_snippets/long_straight_kahkulsuz_female.ldr",
+    "long_straight_kahkullu_female":    "hair_snippets/long_straight_kahkullu_female.ldr",
+    #"long_curly":      "hair_snippets/long_curly.ldr",
+    "long_wavy_female":                 "hair_snippets/long_wavy_female.ldr",
+    "medium_wavy_female":               "hair_snippets/medium_wavy_female.ldr",
+    "bald_male":                        "hair_snippets/bald_male.ldr",
+    "short_bob_female":                 "hair_snippets/short_bob_female.ldr",
+    "pony_tail_female":                 "hair_snippets/pony_tail_female.ldr",
+    #"afro":                             "hair_snippets/afro.ldr",
+    "default":                          "hair_snippets/default.ldr",  # fallback
 }
 
 # =============================================================================
