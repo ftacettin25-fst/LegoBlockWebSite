@@ -7,4 +7,5 @@ outputs/
 generated_views/
 images/
 *.ldr
+!**/LDConfig.ldr
 *.log
