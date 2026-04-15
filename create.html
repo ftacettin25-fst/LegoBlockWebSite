@@ -969,6 +969,39 @@
         controls.enableDamping = true; controls.dampingFactor = 0.05;
         ldrawLoader = new LDrawLoader();
         ldrawLoader.setPartsLibraryPath('/static/ldraw/');
+
+        // ── Inline color fallback ─────────────────────────────────────────────
+        // These are the standard LDraw colors used by the pipeline. They are
+        // injected programmatically so the 3D viewer shows correct brick colors
+        // even when LDConfig.ldr fails to load (e.g. CORS, wrong MIME type).
+        function injectFallbackColors() {
+          const LEGO_COLORS = [
+            [0,   0x1B2A34], [1,   0x1E5AA8], [2,   0x00852B], [3,   0x069D9F],
+            [4,   0xB40000], [5,   0xD3359D], [6,   0x543324], [7,   0x8A928D],
+            [8,   0x545955], [9,   0x97CBD9], [10,  0x58AB41], [11,  0x00AAA4],
+            [12,  0xF06D61], [13,  0xF6A9BB], [14,  0xFAC80A], [15,  0xF4F4F4],
+            [17,  0xADD9A8], [19,  0xD7BA8C], [22,  0x671F81], [25,  0xD67923],
+            [26,  0x901F76], [27,  0xA5CA18], [28,  0x897D62], [29,  0xFF9ECD],
+            [70,  0x5F3109], [71,  0x969696], [72,  0x646464], [78,  0xFFC995],
+            [84,  0xAA7D55], [85,  0x441A91], [89,  0x1C58A7], [92,  0xBB805A],
+            [191, 0xFCAC00], [212, 0x9DC3F7], [226, 0xFFEC6C], [272, 0x19325A],
+            [288, 0x00451A], [308, 0x352100], [320, 0x720012], [321, 0x469BC3],
+            [322, 0x68C3E2], [323, 0xD3F2EA], [326, 0xE2F99A], [330, 0x77774E],
+            [335, 0x88605E], [351, 0xF785B1], [353, 0xFF6D77], [462, 0xF58624],
+            [484, 0x91501C],
+          ];
+          LEGO_COLORS.forEach(([code, hex]) => {
+            const mat = new THREE.MeshStandardMaterial({
+              color: hex,
+              roughness: 0.3,
+              metalness: 0.0,
+            });
+            // userData.code must be a string — LDrawLoader uses string keys in materialLibrary
+            mat.userData.code = String(code);
+            ldrawLoader.addMaterial(mat);
+          });
+        }
+
         (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
         window.addEventListener('resize', () => {
           if (!viewerEl.clientWidth) return;
@@ -993,9 +1026,23 @@
           const cz = Math.abs((maxDim / 2) / Math.tan(fov / 2));
           camera.position.set(0, maxDim / 2, cz * 1.5);
           camera.lookAt(0, 0, 0); controls.target.set(0, 0, 0); controls.update();
+        }, undefined, (err) => {
+          console.error('[LDraw] Model load error:', err);
         });
       }
-      ldrawLoader.preloadMaterials('/static/ldraw/LDConfig.ldr').then(() => loadModel()).catch(() => loadModel());
+
+      // Try to load the official color config; inject fallback colors first so
+      // bricks are never purple even if the config file request fails.
+      injectFallbackColors();
+      ldrawLoader.preloadMaterials('/static/ldraw/LDConfig.ldr')
+        .then(() => {
+          console.log('[LDraw] LDConfig.ldr loaded successfully — using official colors.');
+          loadModel();
+        })
+        .catch((err) => {
+          console.warn('[LDraw] LDConfig.ldr failed to load — using inline fallback colors.', err);
+          loadModel();
+        });
 
       // ===== PDF BUILD GUIDE ENGINE =====
       const pdfBtn = document.getElementById('btn-pdf');
