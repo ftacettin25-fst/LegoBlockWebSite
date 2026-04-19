@@ -38,22 +38,27 @@ init_firebase()
 # One request at a time (CPU-heavy pipeline)
 pipeline_lock = threading.Lock()
 
-app = Flask(__name__, static_folder='.', static_url_path='')
-
+dist_folder = os.path.join(SCRIPT_DIR, 'grids2bricks-hub', 'dist')
+app = Flask(__name__, static_folder=dist_folder, static_url_path='')
 
 # ---------- STATIC FILE ROUTES ----------
 
 @app.route('/')
 def index():
-    return send_from_directory('.', 'index.html')
+    return send_from_directory(dist_folder, 'index.html')
 
 @app.route('/<path:filename>')
 def static_files(filename):
     # Don't fall through for api routes
     if filename.startswith('api/'):
         return jsonify({'error': 'Not found'}), 404
-    return send_from_directory('.', filename)
-
+    
+    # Check if the file exists in dist, otherwise fallback to index.html (SPA routing)
+    file_path = os.path.join(dist_folder, filename)
+    if os.path.exists(file_path):
+        return send_from_directory(dist_folder, filename)
+    else:
+        return send_from_directory(dist_folder, 'index.html')
 
 
 # ---------- API: CREATE ----------

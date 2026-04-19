@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Grids2Bricks — Transform any photo into a custom LEGO BrickHeadz figure. Order your personalized brick model today!">
+  <title>Grids2Bricks — Custom LEGO BrickHeadz Figures</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-left">
+      <a href="#" class="nav-logo" style="font-size: 1.8rem; font-weight: 900; letter-spacing: -1px;">
+        <span style="color:var(--white)">Grids</span><span style="color:var(--accent)">2</span><span
+          style="color:var(--white)">Bricks</span>
+      </a>
+      <div class="nav-links">
+        <a href="#team">Team</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+    <div class="nav-right">
+      <a href="#" class="nav-icon-link" aria-label="Search">
+        <svg class="svg-icon" viewBox="0 0 24 24">
+          <path
+            d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+        </svg>
+      </a>
+      <a href="#" class="nav-icon-link" aria-label="Account">
+        <svg class="svg-icon" viewBox="0 0 24 24">
+          <path
+            d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+        </svg>
+      </a>
+      <a href="order.html" class="cart-icon-btn cart-btn" id="cart-btn">
+        <svg class="svg-icon" style="width:20px;height:20px;" viewBox="0 0 24 24">
+          <path
+            d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
+        </svg>
+        <span class="cart-badge" style="top: -8px; right: 0px;">0</span>
+      </a>
+      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">☰</button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#team">Team</a>
+    <a href="#contact">Contact</a>
+    <a href="#faq">FAQ</a>
+  </div>
+
+  <!-- ===== HERO SECTION ===== -->
+  <section class="hero" id="hero">
+    <h1 class="hero-title">
+      <span class="highlight"><span style="color:var(--black); -webkit-text-fill-color: var(--black);">Grids</span><span
+          style="color:var(--accent); -webkit-text-fill-color: var(--accent);">2</span><span
+          style="color:var(--black); -webkit-text-fill-color: var(--black);">Bricks</span></span>
+    </h1>
+    <p class="hero-subtitle">
+      Transform any photo into a custom LEGO BrickHeadz figure. Your face, your style. Built brick by brick.
+    </p>
+    <div class="hero-buttons">
+      <a href="#gallery" class="btn btn-outline">
+        See More Examples <span class="btn-icon">→</span>
+      </a>
+      <a href="create.html" class="btn btn-primary">
+        Try Yourself
+      </a>
+    </div>
+    <div class="hero-slider-container">
+      <div class="hero-slider-track">
+        <!-- Group 1 -->
+        <div class="slider-pair">
+          <div class="slider-img-wrapper">
+            <img src="images/osimhen.png" alt="Osimhen Original">
+            <div class="slider-label">Original</div>
+          </div>
+          <div class="slider-arrow">→</div>
+          <div class="slider-img-wrapper">
+            <img src="images/osimhen_brickheadz.png" alt="Osimhen BrickHeadz">
+            <div class="slider-label">BrickHeadz</div>
+          </div>
+        </div>
+        <div class="slider-pair">
+          <div class="slider-img-wrapper">
+            <img src="images/speed.png" alt="Speed Original">
+            <div class="slider-label">Original</div>
+          </div>
+          <div class="slider-arrow">→</div>
+          <div class="slider-img-wrapper">
+            <img src="images/speed_brickheadz.png" alt="Speed BrickHeadz">
+            <div class="slider-label">BrickHeadz</div>
+          </div>
+        </div>
+        <div class="slider-pair">
+          <div class="slider-img-wrapper">
+            <img src="images/osimhen.png" alt="Osimhen Original">
+            <div class="slider-label">Original</div>
+          </div>
+          <div class="slider-arrow">→</div>
+          <div class="slider-img-wrapper">
+            <img src="images/osimhen_brickheadz.png" alt="Osimhen BrickHeadz">
+            <div class="slider-label">BrickHeadz</div>
+          </div>
+        </div>
+
+        <!-- Duplicate Group 1 for seamless infinite loop -->
+        <div class="slider-pair">
+          <div class="slider-img-wrapper">
+            <img src="images/osimhen.png" alt="Osimhen Original">
+            <div class="slider-label">Original</div>
+          </div>
+          <div class="slider-arrow">→</div>
+          <div class="slider-img-wrapper">
+            <img src="images/osimhen_brickheadz.png" alt="Osimhen BrickHeadz">
+            <div class="slider-label">BrickHeadz</div>
+          </div>
+        </div>
+        <div class="slider-pair">
+          <div class="slider-img-wrapper">
+            <img src="images/speed.png" alt="Speed Original">
+            <div class="slider-label">Original</div>
+          </div>
+          <div class="slider-arrow">→</div>
+          <div class="slider-img-wrapper">
+            <img src="images/speed_brickheadz.png" alt="Speed BrickHeadz">
+            <div class="slider-label">BrickHeadz</div>
+          </div>
+        </div>
+        <div class="slider-pair">
+          <div class="slider-img-wrapper">
+            <img src="images/osimhen.png" alt="Osimhen Original">
+            <div class="slider-label">Original</div>
+          </div>
+          <div class="slider-arrow">→</div>
+          <div class="slider-img-wrapper">
+            <img src="images/osimhen_brickheadz.png" alt="Osimhen BrickHeadz">
+            <div class="slider-label">BrickHeadz</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== GALLERY / EXAMPLES SECTION ===== -->
+  <section class="gallery-section" id="gallery">
+    <div class="section">
+      <div class="section-header reveal">
+        <span class="section-tag">Gallery</span>
+        <h2 class="section-title">Transformations</h2>
+        <p class="section-subtitle">See how we turn real photos into beautiful LEGO BrickHeadz figures</p>
+      </div>
+      <div class="gallery-grid reveal">
+        <div class="gallery-card">
+          <div class="card-image">
+            <img src="images/osimhen.png" alt="Osimhen Original">
+          </div>
+        </div>
+        <div class="gallery-card">
+          <div class="card-image">
+            <img src="images/osimhen_brickheadz.png" alt="Osimhen BrickHeadz">
+          </div>
+        </div>
+        <div class="gallery-card">
+          <div class="card-image">
+            <img src="images/speed.png" alt="Speed Original">
+          </div>
+        </div>
+        <div class="gallery-card">
+          <div class="card-image">
+            <img src="images/speed_brickheadz.png" alt="Speed BrickHeadz">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HOW IT WORKS ===== -->
+  <section class="section" id="how-it-works">
+    <div class="section-header reveal">
+      <span class="section-tag">How it works</span>
+      <h2 class="section-title">Three Simple Steps</h2>
+      <p class="section-subtitle">Getting your custom BrickHeadz has never been easier</p>
+    </div>
+    <div class="steps-grid reveal">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <h3 class="step-title">Upload Your Photo</h3>
+        <p class="step-desc">Send us any photo — a selfie, portrait, or your favorite look. The more detail, the better.
+        </p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <h3 class="step-title">We Design It</h3>
+        <p class="step-desc">Our team transforms your photo into a pixel-perfect LEGO BrickHeadz design with custom
+          details.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <h3 class="step-title">Get Your Model</h3>
+        <p class="step-desc">Receive your custom BrickHeadz set with building instructions and all the pieces you need.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TEAM SECTION ===== -->
+  <section class="team-section" id="team">
+    <div class="section">
+      <div class="section-header reveal">
+        <span class="section-tag">Our Team</span>
+        <h2 class="section-title">Meet the Builders</h2>
+        <p class="section-subtitle">A passionate crew of LEGO enthusiasts and designers</p>
+      </div>
+      <div class="team-split reveal">
+        <!-- LEFT: Halil — Photo → Info -->
+        <div class="team-half team-half-left">
+          <div class="team-photo">
+            <img src="images/halil.png" alt="Photo of Halil">
+          </div>
+          <div class="team-gradient"></div>
+          <div class="team-info">
+            <h3 class="team-name">Halil</h3>
+            <div class="team-role">CoFounder</div>
+            <p class="team-bio">10+ years of LEGO MOC building and digital brick design expertise.</p>
+          </div>
+        </div>
+
+        <!-- DIVIDER -->
+        <div class="team-divider"></div>
+
+        <!-- RIGHT: Fikret — Info → Photo -->
+        <div class="team-half team-half-right">
+          <div class="team-info">
+            <h3 class="team-name">Fikret</h3>
+            <div class="team-role">CoFounder</div>
+            <p class="team-bio">10+ years of LEGO MOC building and digital brick design expertise.</p>
+          </div>
+          <div class="team-gradient"></div>
+          <div class="team-photo">
+            <img src="images/fikret.png" alt="Photo of Fikret">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FAQ SECTION ===== -->
+  <section class="section" id="faq">
+    <div class="section-header reveal">
+      <span class="section-tag">FAQ</span>
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <p class="section-subtitle">Everything you need to know about our custom BrickHeadz</p>
+    </div>
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <button class="faq-question">
+          How long does it take to create a custom BrickHeadz?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Our design process typically takes 5–7 business days from the moment you submit your photo. Complex designs
+            with special accessories may take an additional 2–3 days. You'll receive a digital preview for approval
+            before production begins.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">
+          What kind of photos work best?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Clear, well-lit front-facing photos work best. We recommend portrait-style photos where facial features and
+            clothing are clearly visible. You can also send multiple photos from different angles for the most accurate
+            result.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">
+          What do I receive in my order?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Each custom BrickHeadz kit includes all the LEGO-compatible bricks needed to build your figure, step-by-step
+            building instructions (digital PDF), and a custom gift box. You can also add a display stand and nameplate
+            as optional extras.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">
+          Can I request revisions to the design?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Absolutely! After receiving your digital preview, you get up to 2 free revision rounds. We'll adjust colors,
+            accessories, hairstyle, and other details until you're completely satisfied with the design.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">
+          Do you ship internationally?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Yes! We ship worldwide. Domestic orders typically arrive in 3–5 business days, while international shipping
+            takes 7–14 business days depending on your location. All orders include tracking information.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">
+          How much does a custom BrickHeadz cost?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Prices start at $49.99 for a standard custom BrickHeadz figure. Premium options with additional accessories,
+            dual figures, or complex designs are available at higher tiers. Visit our Order section for full pricing
+            details.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CONTACT SECTION ===== -->
+  <section class="contact-section" id="contact">
+    <div class="section">
+      <div class="section-header reveal">
+        <span class="section-tag">Contact</span>
+        <h2 class="section-title">Get in Touch</h2>
+        <p class="section-subtitle">Have questions or a special request? We'd love to hear from you</p>
+      </div>
+      <div class="contact-grid reveal">
+        <div class="contact-info">
+          <div class="contact-info-card">
+            <div class="contact-icon">
+              <svg class="svg-icon" viewBox="0 0 24 24">
+                <path
+                  d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+              </svg>
+            </div>
+            <div>
+              <h4>Email Us</h4>
+              <p>hello@grids2bricks.com</p>
+            </div>
+          </div>
+          <div class="contact-info-card">
+            <div class="contact-icon">
+              <svg class="svg-icon" viewBox="0 0 24 24">
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+              </svg>
+            </div>
+            <div>
+              <h4>Live Chat</h4>
+              <p>Available Mon–Fri, 9am–6pm EST</p>
+            </div>
+          </div>
+          <div class="contact-info-card">
+            <div class="contact-icon">
+              <svg class="svg-icon" viewBox="0 0 24 24">
+                <path
+                  d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+              </svg>
+            </div>
+            <div>
+              <h4>Studio</h4>
+              <p>Brick Street 42, Creative District</p>
+            </div>
+          </div>
+          <div class="contact-info-card">
+            <div class="contact-icon">
+              <svg class="svg-icon" viewBox="0 0 24 24">
+                <path
+                  d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z" />
+              </svg>
+            </div>
+            <div>
+              <h4>Social</h4>
+              <p>@grids2bricks on all platforms</p>
+            </div>
+          </div>
+        </div>
+        <form class="contact-form" id="contact-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Name</label>
+              <input type="text" id="name" placeholder="Your name" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" placeholder="you@example.com" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="subject">Subject</label>
+            <input type="text" id="subject" placeholder="What's this about?">
+          </div>
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" placeholder="Tell us about your custom BrickHeadz idea..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary form-submit">
+            Send Message <span class="btn-icon">→</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA BANNER ===== -->
+  <section class="cta-banner" id="order">
+    <h2>Ready to Become a BrickHeadz?</h2>
+    <p>Upload your photo and get a custom LEGO-style figure built just for you. It's fast, fun, and makes the perfect
+      gift.</p>
+    <a href="order.html" class="btn">
+      Start Your Order <span class="btn-icon">→</span>
+    </a>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-logo" style="font-size: 1.5rem; font-weight: 900; letter-spacing: -1px;">
+        <span style="color:var(--white)">Grids</span><span style="color:var(--accent)">2</span><span
+          style="color:var(--white)">Bricks</span>
+      </div>
+      <div class="footer-links">
+        <a href="#hero">Home</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#team">Team</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Grids2Bricks. All rights reserved. LEGO® is a trademark of the LEGO Group, which does not sponsor or
+        endorse this site.</p>
+    </div>
+  </footer>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script>
+    // Navbar scroll effect
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 30);
+    });
+
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('active');
+      mobileMenuBtn.textContent = mobileMenu.classList.contains('active') ? '✕' : '☰';
+    });
+
+    // Close mobile menu on link click
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('active');
+        mobileMenuBtn.textContent = '☰';
+      });
+    });
+
+    // FAQ accordion
+    document.querySelectorAll('.faq-question').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.parentElement;
+        const isActive = item.classList.contains('active');
+        // Close all
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+        // Toggle current
+        if (!isActive) item.classList.add('active');
+      });
+    });
+
+    // Scroll reveal (Intersection Observer)
+    const revealElements = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    revealElements.forEach(el => observer.observe(el));
+
+    // Contact form (demo)
+    document.getElementById('contact-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('.form-submit');
+      btn.textContent = '✓ Message Sent!';
+      btn.style.background = '#22c55e';
+      btn.style.borderColor = '#22c55e';
+      btn.style.color = '#fff';
+      setTimeout(() => {
+        btn.innerHTML = 'Send Message <span class="btn-icon">→</span>';
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+        e.target.reset();
+      }, 2500);
+    });
+  </script>
+
+</body>
+
+</html>

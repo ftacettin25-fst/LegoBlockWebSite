@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create your own custom LEGO BrickHeadz figure by uploading a photo.">
+  <title>Create Your BrickHeadz — Grids2Bricks</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  <style>
+    /* ===== CREATE PAGE ===== */
+    .create-page {
+      padding-top: 100px;
+      min-height: 100vh;
+    }
+
+    .create-header {
+      text-align: center;
+      padding: 0 40px 48px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .create-header h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      margin-bottom: 12px;
+    }
+
+    .create-header p {
+      font-size: 1.05rem;
+      color: var(--gray);
+    }
+
+    /* ===== SINGLE UPLOAD ZONE ===== */
+    .upload-section {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0 40px 48px;
+    }
+
+    .upload-zone {
+      position: relative;
+      aspect-ratio: 3/4;
+      border: 3px dashed rgba(139, 47, 142, 0.3);
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      overflow: hidden;
+    }
+
+    .upload-zone:hover {
+      border-color: var(--accent);
+      background: rgba(139, 47, 142, 0.08);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .upload-zone.has-image {
+      border-color: var(--accent);
+      border-style: solid;
+    }
+
+    .upload-zone.has-image:hover {
+      box-shadow: var(--shadow-xl);
+    }
+
+    .upload-zone input[type="file"] {
+      display: none;
+    }
+
+    .upload-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .upload-icon {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, var(--indigo), var(--bg-card-light));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .upload-label {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--dark);
+    }
+
+    .upload-hint {
+      font-size: 0.82rem;
+      color: var(--gray);
+      line-height: 1.5;
+    }
+
+    .upload-silhouette {
+      font-size: 3.5rem;
+      opacity: 0.2;
+      margin-bottom: 4px;
+    }
+
+    .upload-preview {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .upload-zone.has-image .upload-preview {
+      display: block;
+    }
+
+    .upload-zone.has-image .upload-placeholder {
+      display: none;
+    }
+
+    .upload-badge {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 5px 18px;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, var(--accent), var(--crimson));
+      color: var(--white);
+      z-index: 2;
+      box-shadow: var(--shadow-sm);
+      white-space: nowrap;
+    }
+
+    .upload-remove {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 30px;
+      height: 30px;
+      background: rgba(239, 68, 68, 0.9);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+      transition: var(--transition);
+    }
+
+    .upload-remove:hover {
+      background: #dc2626;
+      transform: scale(1.1);
+    }
+
+    .upload-zone.has-image .upload-remove {
+      display: flex;
+    }
+
+    /* ===== CREATE BUTTON ===== */
+    .create-actions {
+      text-align: center;
+      padding: 0 40px 48px;
+    }
+
+    .create-btn {
+      padding: 16px 52px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      border-radius: var(--radius-full);
+      background: linear-gradient(135deg, var(--accent), var(--crimson));
+      color: var(--white);
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .create-btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, var(--accent-dark), var(--crimson-dark));
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .create-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .upload-counter {
+      display: block;
+      text-align: center;
+      margin-top: 12px;
+      font-size: 0.88rem;
+      color: var(--gray);
+    }
+
+    /* ===== PROCESSING OVERLAY ===== */
+    .processing-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(13, 20, 64, 0.95);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+    }
+
+    .processing-overlay.active {
+      display: flex;
+    }
+
+    .brick-animation {
+      position: relative;
+      width: 120px;
+      height: 120px;
+    }
+
+    .brick-block {
+      width: 30px;
+      height: 12px;
+      border-radius: 3px;
+      position: absolute;
+      animation: stackBricks 2s ease-in-out infinite;
+    }
+
+    .brick-block:nth-child(1) {
+      background: #1a2b8a;
+      bottom: 0;
+      left: 15px;
+      animation-delay: 0s;
+    }
+
+    .brick-block:nth-child(2) {
+      background: #4b2e83;
+      bottom: 14px;
+      left: 30px;
+      animation-delay: 0.15s;
+    }
+
+    .brick-block:nth-child(3) {
+      background: #8b2f8e;
+      bottom: 28px;
+      left: 15px;
+      animation-delay: 0.3s;
+    }
+
+    .brick-block:nth-child(4) {
+      background: #b5294e;
+      bottom: 42px;
+      left: 45px;
+      animation-delay: 0.45s;
+    }
+
+    .brick-block:nth-child(5) {
+      background: #b22222;
+      bottom: 56px;
+      left: 30px;
+      animation-delay: 0.6s;
+    }
+
+    .brick-block:nth-child(6) {
+      background: #a84bab;
+      bottom: 70px;
+      left: 15px;
+      animation-delay: 0.75s;
+    }
+
+    .brick-block:nth-child(7) {
+      background: #2a3fa0;
+      bottom: 84px;
+      left: 45px;
+      animation-delay: 0.9s;
+    }
+
+    .brick-block:nth-child(8) {
+      background: #d4385f;
+      bottom: 98px;
+      left: 30px;
+      animation-delay: 1.05s;
+    }
+
+    @keyframes stackBricks {
+
+      0%,
+      100% {
+        opacity: 0.3;
+        transform: translateY(10px);
+      }
+
+      20%,
+      80% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .processing-text {
+      text-align: center;
+    }
+
+    .processing-text h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--dark);
+    }
+
+    .processing-text p {
+      color: var(--gray);
+      font-size: 0.95rem;
+    }
+
+    .processing-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 300px;
+    }
+
+    .processing-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--gray);
+      border: 1px solid rgba(139, 47, 142, 0.1);
+      transition: all 0.4s ease;
+    }
+
+    .processing-step.active {
+      color: var(--dark);
+      border-color: var(--accent);
+      background: rgba(139, 47, 142, 0.1);
+    }
+
+    .processing-step.done {
+      color: #16a34a;
+      border-color: rgba(22, 163, 74, 0.2);
+    }
+
+    .step-indicator {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(139, 47, 142, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      flex-shrink: 0;
+    }
+
+    .processing-step.active .step-indicator {
+      background: var(--accent);
+      animation: pulse 1.5s infinite;
+    }
+
+    .processing-step.done .step-indicator {
+      background: #22c55e;
+      color: white;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(139, 47, 142, 0.4);
+      }
+
+      50% {
+        box-shadow: 0 0 0 6px rgba(139, 47, 142, 0);
+      }
+    }
+
+    /* ===== RESULT SECTION ===== */
+    .result-section {
+      display: none;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 40px 80px;
+      text-align: center;
+    }
+
+    .result-section.visible {
+      display: block;
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .result-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 48px 36px;
+      box-shadow: var(--shadow-lg);
+      border: 2px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .result-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      margin: 0 auto 20px;
+      box-shadow: 0 8px 24px rgba(34, 197, 94, 0.25);
+    }
+
+    .result-card h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .result-card>p {
+      color: var(--gray);
+      font-size: 0.95rem;
+      margin-bottom: 28px;
+    }
+
+    /* Appearance chips */
+    .appearance-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+
+    .appearance-chip {
+      padding: 5px 14px;
+      border-radius: var(--radius-full);
+      background: rgba(139, 47, 142, 0.12);
+      border: 1px solid rgba(139, 47, 142, 0.25);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent-light);
+    }
+
+    .appearance-chip .chip-label {
+      color: var(--gray);
+      margin-right: 4px;
+      font-weight: 500;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .result-actions .btn {
+      padding: 14px 28px;
+    }
+
+    /* ===== 3D VIEWER ===== */
+    #ldr-viewer {
+      width: 100%;
+      height: 500px;
+      border: 2px solid rgba(139, 47, 142, 0.2);
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      cursor: grab;
+      margin: 24px 0;
+      box-shadow: var(--shadow-lg);
+    }
+
+    #ldr-viewer:active {
+      cursor: grabbing;
+    }
+
+    .viewer-label {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 8px;
+    }
+
+    .viewer-hint {
+      font-size: 0.82rem;
+      color: var(--gray);
+      margin-bottom: 12px;
+    }
+
+    #btn-pdf {
+      background: linear-gradient(135deg, #dc3545, #c82333);
+      color: white;
+      border-color: transparent;
+    }
+
+    #btn-pdf:hover {
+      background: linear-gradient(135deg, #c82333, #a71d2a);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    /* ===== ERROR ===== */
+    .error-message {
+      display: none;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0 40px 40px;
+      text-align: center;
+    }
+
+    .error-message.visible {
+      display: block;
+      animation: fadeInUp 0.4s ease-out;
+    }
+
+    .error-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 24px;
+      border: 2px solid rgba(239, 68, 68, 0.2);
+      color: #dc2626;
+      font-weight: 600;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .upload-section {
+        max-width: 100%;
+        padding: 0 20px 32px;
+      }
+
+      .create-header {
+        padding: 0 20px 32px;
+      }
+
+      .create-actions {
+        padding: 0 20px 32px;
+      }
+
+      .result-section {
+        padding: 0 20px 60px;
+      }
+
+      .create-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-left">
+      <a href="index.html" class="nav-logo" style="font-size: 1.8rem; font-weight: 900; letter-spacing: -1px;">
+        <span style="color:var(--white)">Grids</span><span style="color:var(--accent)">2</span><span
+          style="color:var(--white)">Bricks</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html#team">Team</a>
+        <a href="index.html#contact">Contact</a>
+        <a href="index.html#faq">FAQ</a>
+      </div>
+    </div>
+    <div class="nav-right">
+      <a href="#" class="nav-icon-link" aria-label="Search">
+        <svg class="svg-icon" viewBox="0 0 24 24">
+          <path
+            d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+        </svg>
+      </a>
+      <a href="#" class="nav-icon-link" aria-label="Account">
+        <svg class="svg-icon" viewBox="0 0 24 24">
+          <path
+            d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+        </svg>
+      </a>
+      <a href="order.html" class="cart-icon-btn cart-btn">
+        <svg class="svg-icon" style="width:20px;height:20px;" viewBox="0 0 24 24">
+          <path
+            d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
+        </svg>
+        <span class="cart-badge" style="top: -8px; right: 0px;">0</span>
+      </a>
+      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">☰</button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="index.html#team">Team</a>
+    <a href="index.html#contact">Contact</a>
+    <a href="index.html#faq">FAQ</a>
+  </div>
+
+  <!-- ===== PROCESSING OVERLAY ===== -->
+  <div class="processing-overlay" id="processing-overlay">
+    <div class="brick-animation">
+      <div class="brick-block"></div>
+      <div class="brick-block"></div>
+      <div class="brick-block"></div>
+      <div class="brick-block"></div>
+      <div class="brick-block"></div>
+      <div class="brick-block"></div>
+      <div class="brick-block"></div>
+      <div class="brick-block"></div>
+    </div>
+    <div class="processing-text">
+      <h2>Building Your BrickHeadz...</h2>
+      <p>This may take a few minutes. Please don't close this page.</p>
+    </div>
+    <div class="processing-steps">
+      <div class="processing-step active" id="step-upload">
+        <span class="step-indicator">📤</span> Uploading photo...
+      </div>
+      <div class="processing-step" id="step-analyze">
+        <span class="step-indicator">🤖</span> AI appearance analysis...
+      </div>
+      <div class="processing-step" id="step-generate">
+        <span class="step-indicator">🎨</span> Generating 4 views in parallel...
+      </div>
+      <div class="processing-step" id="step-grid">
+        <span class="step-indicator">📐</span> Analyzing grid perspective...
+      </div>
+      <div class="processing-step" id="step-3d">
+        <span class="step-indicator">🧊</span> Building 3D space matrix...
+      </div>
+      <div class="processing-step" id="step-merge">
+        <span class="step-indicator">🧱</span> Merging bricks & adding hair...
+      </div>
+      <div class="processing-step" id="step-done">
+        <span class="step-indicator">✓</span> Finalizing...
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CREATE PAGE ===== -->
+  <main class="create-page">
+
+    <div class="create-header">
+      <div class="hero-badge" style="margin-bottom:20px">Creator Studio</div>
+      <h1>Create Your <span class="highlight">BrickHeadz</span></h1>
+      <p>Upload a single photo — our AI analyzes your appearance, generates all 4 views, and builds your custom LEGO
+        BrickHeadz model automatically.</p>
+    </div>
+
+    <!-- Single upload zone -->
+    <div class="upload-section">
+      <div class="upload-zone" id="zone-photo" onclick="document.getElementById('file-photo').click()">
+        <span class="upload-badge">Your Photo</span>
+        <input type="file" id="file-photo" accept="image/*" onchange="handleUpload(this)">
+        <img class="upload-preview" id="preview-photo" alt="Preview">
+        <button class="upload-remove" onclick="removeImage(event)" title="Remove">✕</button>
+        <div class="upload-placeholder">
+          <div class="upload-silhouette">
+            <svg style="width:50px;height:50px;fill:var(--gray);" viewBox="0 0 24 24">
+              <path
+                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+            </svg>
+          </div>
+          <div class="upload-icon">
+            <svg style="width:36px;height:36px;fill:var(--white);" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />
+            </svg>
+          </div>
+          <div class="upload-label">Upload Your Photo</div>
+          <div class="upload-hint">Full-body or portrait photo<br>JPG, PNG or WEBP<br>Click or drag &amp; drop</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create button -->
+    <div class="create-actions">
+      <button class="create-btn" id="create-btn" disabled onclick="startCreation()">
+        Create My BrickHeadz
+      </button>
+      <span class="upload-counter" id="upload-counter">No photo uploaded yet</span>
+    </div>
+
+    <!-- Error -->
+    <div class="error-message" id="error-msg">
+      <div class="error-card" id="error-text">Something went wrong.</div>
+    </div>
+
+    <!-- Result -->
+    <div class="result-section" id="result-section">
+      <div class="result-card">
+        <div class="result-icon">
+          <svg style="width:40px;height:40px;fill:var(--white);" viewBox="0 0 24 24">
+            <path d="M9 16h6v-6h4l-7-7-7 7h4v6zm3-10.17L14.17 8H9.83L12 5.83zM5 18h14v2H5z" />
+          </svg>
+        </div>
+        <h2>Your BrickHeadz is Ready!</h2>
+        <p>Your custom model has been generated. Rotate the 3D preview below, download the .ldr file, or generate a PDF
+          build guide.</p>
+
+        <div class="appearance-strip" id="appearance-strip"></div>
+
+        <div class="viewer-label">3D Model Preview</div>
+        <div class="viewer-hint">Click and drag to rotate · Scroll to zoom · Right-click to pan</div>
+        <div id="ldr-viewer"></div>
+
+        <div class="result-actions">
+          <a id="download-link" href="#" class="btn btn-primary" download>
+            Download .ldr File <span class="btn-icon"></span>
+          </a>
+          <button id="btn-pdf" class="btn btn-primary">
+            PDF Build Guide <span class="btn-icon"></span>
+          </button>
+          <button class="btn btn-outline" onclick="resetCreator()">
+            Create Another <span class="btn-icon"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-logo" style="font-size: 1.5rem; font-weight: 900; letter-spacing: -1px;">
+        <span style="color:var(--white)">Grids</span><span style="color:var(--accent)">2</span><span
+          style="color:var(--white)">Bricks</span>
+      </div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="index.html#gallery">Gallery</a>
+        <a href="index.html#team">Team</a>
+        <a href="index.html#faq">FAQ</a>
+        <a href="index.html#contact">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Grids2Bricks. All rights reserved. LEGO® is a trademark of the LEGO Group, which does not sponsor or
+        endorse this site.</p>
+    </div>
+  </footer>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script>
+    // Navbar scroll
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 30);
+    });
+
+    // Mobile menu
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('active');
+      mobileMenuBtn.textContent = mobileMenu.classList.contains('active') ? '✕' : '☰';
+    });
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('active');
+        mobileMenuBtn.textContent = '☰';
+      });
+    });
+
+    let uploadedFile = null;
+
+    function handleUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+      uploadedFile = file;
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById('preview-photo').src = e.target.result;
+        document.getElementById('zone-photo').classList.add('has-image');
+        document.getElementById('upload-counter').innerHTML = '<strong>' + file.name + '</strong> ready';
+        document.getElementById('create-btn').disabled = false;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeImage(event) {
+      event.stopPropagation();
+      uploadedFile = null;
+      document.getElementById('file-photo').value = '';
+      document.getElementById('preview-photo').src = '';
+      document.getElementById('zone-photo').classList.remove('has-image');
+      document.getElementById('upload-counter').textContent = 'No photo uploaded yet';
+      document.getElementById('create-btn').disabled = true;
+    }
+
+    // Drag and drop
+    const zone = document.getElementById('zone-photo');
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = 'var(--accent)'; });
+    zone.addEventListener('dragleave', () => { zone.style.borderColor = ''; });
+    zone.addEventListener('drop', e => {
+      e.preventDefault(); zone.style.borderColor = '';
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const input = document.getElementById('file-photo');
+        const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files;
+        handleUpload(input);
+      }
+    });
+
+    async function startCreation() {
+      document.getElementById('error-msg').classList.remove('visible');
+      document.getElementById('result-section').classList.remove('visible');
+
+      const overlay = document.getElementById('processing-overlay');
+      overlay.classList.add('active');
+
+      const stepIds = ['step-upload', 'step-analyze', 'step-generate', 'step-grid', 'step-3d', 'step-merge', 'step-done'];
+      stepIds.forEach(id => document.getElementById(id).classList.remove('active', 'done'));
+      document.getElementById('step-upload').classList.add('active');
+
+      const advanceStep = idx => {
+        if (idx > 0) {
+          document.getElementById(stepIds[idx - 1]).classList.remove('active');
+          document.getElementById(stepIds[idx - 1]).classList.add('done');
+        }
+        if (idx < stepIds.length) document.getElementById(stepIds[idx]).classList.add('active');
+      };
+
+      const formData = new FormData();
+      formData.append('photo', uploadedFile);
+
+      let stepIndex = 0;
+      const stepTimer = setInterval(() => {
+        stepIndex++;
+        if (stepIndex < stepIds.length - 1) advanceStep(stepIndex);
+      }, 5000);
+
+      try {
+        const response = await fetch('/api/create', { method: 'POST', body: formData });
+        clearInterval(stepTimer);
+
+        stepIds.forEach(id => {
+          document.getElementById(id).classList.remove('active');
+          document.getElementById(id).classList.add('done');
+        });
+        await new Promise(r => setTimeout(r, 800));
+        overlay.classList.remove('active');
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          document.getElementById('download-link').href = data.download_url;
+          document.getElementById('download-link').download = 'brickheadz.ldr';
+
+          // Appearance chips from person_data
+          if (data.person_data) {
+            const pd = data.person_data;
+            const strip = document.getElementById('appearance-strip');
+            strip.innerHTML = '';
+            [
+              ['Hair', (pd.hair_color || '?') + ' ' + (pd.hair_type || '')],
+              ['Top', pd.top_clothing_color || '?'],
+              ['Bottom', pd.bottom_clothing_color || '?'],
+              ['Skin', pd.skin_color_desc || '?'],
+            ].forEach(([label, val]) => {
+              const chip = document.createElement('div');
+              chip.className = 'appearance-chip';
+              chip.innerHTML = '<span class="chip-label">' + label + ':</span>' + val.trim();
+              strip.appendChild(chip);
+            });
+          }
+
+          document.getElementById('result-section').classList.add('visible');
+          document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
+          if (window.initLdrViewer) window.initLdrViewer(data.ldr_url);
+
+        } else {
+          showError(data.error || 'An unknown error occurred.');
+        }
+      } catch (err) {
+        clearInterval(stepTimer);
+        overlay.classList.remove('active');
+        showError('Failed to connect to the server. Make sure the server is running.');
+        console.error(err);
+      }
+    }
+
+    function showError(msg) {
+      document.getElementById('error-text').textContent = '❌ ' + msg;
+      document.getElementById('error-msg').classList.add('visible');
+    }
+
+    function resetCreator() {
+      removeImage({ stopPropagation: () => { } });
+      document.getElementById('result-section').classList.remove('visible');
+      document.getElementById('error-msg').classList.remove('visible');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+
+  <!-- ===== 3D VIEWER + PDF ENGINE ===== -->
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { LDrawLoader } from 'three/addons/loaders/LDrawLoader.js';
+
+    let scene, camera, renderer, controls, ldrawLoader, loadedModelGroup = null;
+    let viewerInitialized = false;
+
+    window.initLdrViewer = function (ldrUrl) {
+      const viewerEl = document.getElementById('ldr-viewer');
+      if (!viewerEl) return;
+
+      if (viewerInitialized && loadedModelGroup) {
+        scene.remove(loadedModelGroup);
+        loadedModelGroup = null;
+      }
+
+      if (!viewerInitialized) {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a2e);
+        camera = new THREE.PerspectiveCamera(45, viewerEl.clientWidth / viewerEl.clientHeight, 1, 10000);
+        renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(viewerEl.clientWidth, viewerEl.clientHeight);
+        viewerEl.appendChild(renderer.domElement);
+        scene.add(new THREE.AmbientLight(0xcccccc, 0.6));
+        const dl = new THREE.DirectionalLight(0xffffff, 0.8);
+        dl.position.set(1, 1, 1).normalize(); scene.add(dl);
+        controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; controls.dampingFactor = 0.05;
+        ldrawLoader = new LDrawLoader();
+        ldrawLoader.setPartsLibraryPath('/static/ldraw/');
+        (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+        window.addEventListener('resize', () => {
+          if (!viewerEl.clientWidth) return;
+          camera.aspect = viewerEl.clientWidth / viewerEl.clientHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(viewerEl.clientWidth, viewerEl.clientHeight);
+        });
+        viewerInitialized = true;
+      }
+
+      function loadModel() {
+        ldrawLoader.load(ldrUrl, group => {
+          loadedModelGroup = group;
+          const box = new THREE.Box3().setFromObject(group);
+          const center = box.getCenter(new THREE.Vector3());
+          const size = box.getSize(new THREE.Vector3());
+          group.position.set(-center.x, -center.y, -center.z);
+          group.rotation.x = Math.PI;
+          scene.add(group);
+          const maxDim = Math.max(size.x, size.y, size.z);
+          const fov = camera.fov * (Math.PI / 180);
+          const cz = Math.abs((maxDim / 2) / Math.tan(fov / 2));
+          camera.position.set(0, maxDim / 2, cz * 1.5);
+          camera.lookAt(0, 0, 0); controls.target.set(0, 0, 0); controls.update();
+        });
+      }
+      ldrawLoader.preloadMaterials('/static/ldraw/LDConfig.ldr').then(() => loadModel()).catch(() => loadModel());
+
+      // ===== PDF BUILD GUIDE ENGINE =====
+      const pdfBtn = document.getElementById('btn-pdf');
+      const newBtn = pdfBtn.cloneNode(true);
+      pdfBtn.parentNode.replaceChild(newBtn, pdfBtn);
+
+      newBtn.addEventListener('click', async () => {
+        if (!loadedModelGroup) { alert('3D model is still loading. Please wait a moment.'); return; }
+        newBtn.style.opacity = '0.7';
+        newBtn.disabled = true;
+
+        const delay = ms => new Promise(r => setTimeout(r, ms));
+
+        // Step 1: Fetch LDR text
+        newBtn.innerHTML = 'Fetching model data... ⏳';
+        let ldrText;
+        try {
+          ldrText = await fetch(ldrUrl).then(r => r.text());
+        } catch (e) {
+          alert('Could not load LDR file: ' + e.message);
+          newBtn.style.opacity = '1'; newBtn.disabled = false;
+          newBtn.innerHTML = 'PDF Build Guide <span class="btn-icon">📄</span>';
+          return;
+        }
+
+        const colorMap = {
+          "0": "#05131D", "1": "#0055BF", "2": "#237841", "4": "#C91A09",
+          "14": "#F2CD37", "15": "#FFFFFF", "16": "#FFFFFF",
+          "71": "#A0A5A9", "72": "#6C6E68", "25": "#EB6400", "22": "#81007B"
+        };
+        const colorNameMap = {
+          "0": "Black", "1": "Blue", "2": "Green", "4": "Red",
+          "14": "Yellow", "15": "White", "16": "White",
+          "71": "Lt. Gray", "72": "Dk. Gray", "25": "Orange", "22": "Purple"
+        };
+        const partNameMap = {
+          "3024": "1x1 Plate", "3023": "1x2 Plate", "3022": "2x2 Plate",
+          "3623": "1x3 Plate", "3710": "1x4 Plate", "3021": "2x3 Plate",
+          "3020": "2x4 Plate", "3666": "1x6 Plate", "3034": "1x8 Plate",
+          "3070b": "1x1 Tile", "3069b": "1x2 Tile",
+          "3001": "2x4 Brick", "3003": "2x2 Brick", "3004": "1x2 Brick",
+          "3005": "1x1 Brick", "3010": "1x4 Brick",
+          "6141": "1x1 Round Plate", "4073": "1x1 Round Plate"
+        };
+
+        // Step 2: Parse type-1 lines in order — index maps to loadedModelGroup.children[i]
+        const partLines = [];
+        ldrText.split('\n').forEach(line => {
+          const t = line.trim().split(/\s+/);
+          if (t[0] !== '1' || t.length < 15) return;
+          partLines.push({
+            y: Math.round(parseFloat(t[3])),
+            colorId: t[1],
+            partFile: t[14].replace(/\.(dat|ldr)$/i, ''),
+            childIndex: partLines.length
+          });
+        });
+
+        if (partLines.length === 0) {
+          alert('No brick data found in the LDR file.');
+          newBtn.style.opacity = '1'; newBtn.disabled = false;
+          newBtn.innerHTML = 'PDF Build Guide <span class="btn-icon">📄</span>';
+          return;
+        }
+
+        // Step 3: Group child indices by LDR Y coordinate
+        const indicesByY = {};
+        partLines.forEach(p => {
+          if (!indicesByY[p.y]) indicesByY[p.y] = [];
+          indicesByY[p.y].push(p.childIndex);
+        });
+
+        // Higher Y = lower in LDraw = build first. Sort descending.
+        const sortedYs = Object.keys(indicesByY).map(Number).sort((a, b) => b - a);
+
+        // Step 4: Pair Y-layers into steps of 2 (each step adds 2 height-levels cumulatively)
+        const buildSteps = [];
+        for (let i = 0; i < sortedYs.length; i += 2) {
+          buildSteps.push(sortedYs.slice(i, i + 2));
+        }
+
+        // Step 5: Save camera state and set a fixed PDF perspective
+        const savedCamPos = camera.position.clone();
+        const savedTarget = controls.target.clone();
+
+        // Compute model size to position camera at the right distance
+        const pdfBox = new THREE.Box3().setFromObject(loadedModelGroup);
+        const pdfSize = pdfBox.getSize(new THREE.Vector3());
+        const pdfMaxDim = Math.max(pdfSize.x, pdfSize.y, pdfSize.z);
+        const pdfFov = camera.fov * (Math.PI / 180);
+        const pdfDist = Math.abs((pdfMaxDim / 2) / Math.tan(pdfFov / 2)) * 1.8;
+
+        // Fixed top-left isometric angle (classic LEGO instruction perspective)
+        const pdfCamPos = new THREE.Vector3(
+          -pdfDist * 0.7,   // left offset
+           pdfDist * 0.6,   // top offset
+           pdfDist          // depth
+        );
+        controls.target.set(0, 0, 0);
+        camera.position.copy(pdfCamPos);
+        camera.lookAt(0, 0, 0);
+        controls.update();
+
+        // Hide everything to start from scratch
+        loadedModelGroup.traverse(obj => { obj.visible = false; });
+        loadedModelGroup.visible = true;
+
+        // Step 6: Build PDF page by page
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('landscape', 'mm', 'a4');
+        const pdfW = pdf.internal.pageSize.getWidth();
+        const pdfH = pdf.internal.pageSize.getHeight();
+
+        for (let stepIdx = 0; stepIdx < buildSteps.length; stepIdx++) {
+          newBtn.innerHTML = 'Step ' + (stepIdx + 1) + ' / ' + buildSteps.length + ' ⏳';
+          await delay(30);
+
+          const stepYs = buildSteps[stepIdx];
+
+          // Collect new parts added this step
+          const newParts = {};
+          stepYs.forEach(y => {
+            indicesByY[y].forEach(ci => {
+              const p = partLines[ci];
+              const key = p.colorId + '_' + p.partFile;
+              if (!newParts[key]) {
+                newParts[key] = {
+                  colorHex: colorMap[p.colorId] || '#aaa',
+                  colorName: colorNameMap[p.colorId] || ('Color ' + p.colorId),
+                  partName: partNameMap[p.partFile] || p.partFile,
+                  count: 0
+                };
+              }
+              newParts[key].count++;
+
+              // Make this child visible (cumulative — stays visible in future steps too)
+              const child = loadedModelGroup.children[ci];
+              if (child) child.traverse(o => { o.visible = true; });
+            });
+          });
+
+          // Ensure the fixed PDF camera is applied for every screenshot
+          camera.position.copy(pdfCamPos);
+          camera.lookAt(0, 0, 0);
+          controls.target.set(0, 0, 0);
+          controls.update();
+          renderer.render(scene, camera);
+          await delay(20);
+          const imgData = renderer.domElement.toDataURL('image/jpeg', 0.85);
+
+          // --- PDF page layout ---
+          if (stepIdx > 0) pdf.addPage();
+
+          // Dark background
+          pdf.setFillColor(18, 18, 30);
+          pdf.rect(0, 0, pdfW, pdfH, 'F');
+
+          // Step badge
+          pdf.setFillColor(139, 47, 142);
+          pdf.roundedRect(10, 8, 38, 14, 3, 3, 'F');
+          pdf.setFontSize(16);
+          pdf.setTextColor(255, 255, 255);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text('STEP ' + (stepIdx + 1), 29, 18, { align: 'center' });
+
+          // Guide title
+          pdf.setFontSize(9);
+          pdf.setTextColor(160, 160, 180);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text('Grids2Bricks Build Guide', pdfW / 2, 18, { align: 'center' });
+
+          // Progress bar
+          const barX = 52, barY = 13, barW = pdfW - 62 - 68, barH = 4;
+          pdf.setFillColor(40, 40, 60);
+          pdf.roundedRect(barX, barY, barW, barH, 2, 2, 'F');
+          pdf.setFillColor(139, 47, 142);
+          pdf.roundedRect(barX, barY, barW * ((stepIdx + 1) / buildSteps.length), barH, 2, 2, 'F');
+
+          // 3D screenshot
+          const imgX = 10, imgY = 26, imgW = pdfW - 80, imgH = pdfH - 36;
+          pdf.addImage(imgData, 'JPEG', imgX, imgY, imgW, imgH);
+
+          // Parts panel (right side)
+          const panelX = pdfW - 66, panelY = 26, panelW = 60, panelH = pdfH - 36;
+          pdf.setFillColor(28, 28, 48);
+          pdf.roundedRect(panelX, panelY, panelW, panelH, 3, 3, 'F');
+
+          pdf.setFontSize(7.5);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(200, 160, 255);
+          pdf.text('ADD THIS STEP', panelX + panelW / 2, panelY + 8, { align: 'center' });
+          pdf.setDrawColor(139, 47, 142);
+          pdf.setLineWidth(0.3);
+          pdf.line(panelX + 4, panelY + 11, panelX + panelW - 4, panelY + 11);
+
+          let partY = panelY + 17;
+          const partEntries = Object.values(newParts);
+          partEntries.forEach(part => {
+            if (partY > panelY + panelH - 12) return;
+            const hex = part.colorHex;
+            const r = parseInt(hex.slice(1, 3), 16) || 0;
+            const g = parseInt(hex.slice(3, 5), 16) || 0;
+            const b = parseInt(hex.slice(5, 7), 16) || 0;
+            pdf.setFillColor(r, g, b);
+            pdf.roundedRect(panelX + 4, partY - 3.5, 6, 5, 1, 1, 'F');
+            pdf.setDrawColor(100, 100, 120);
+            pdf.setLineWidth(0.2);
+            pdf.roundedRect(panelX + 4, partY - 3.5, 6, 5, 1, 1, 'S');
+
+            pdf.setFillColor(139, 47, 142);
+            pdf.roundedRect(panelX + 12, partY - 3.5, 8, 5, 1, 1, 'F');
+            pdf.setFontSize(6.5);
+            pdf.setTextColor(255, 255, 255);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('x' + part.count, panelX + 16, partY + 0.5, { align: 'center' });
+
+            pdf.setFont('helvetica', 'normal');
+            pdf.setFontSize(6.5);
+            pdf.setTextColor(210, 210, 230);
+            const pname = part.partName.length > 14 ? part.partName.slice(0, 13) + '…' : part.partName;
+            pdf.text(pname, panelX + 22, partY + 0.5);
+            pdf.setFontSize(5.5);
+            pdf.setTextColor(140, 140, 160);
+            pdf.text(part.colorName, panelX + 22, partY + 5);
+            partY += 13;
+          });
+
+          // Bottom total
+          const totalNew = partEntries.reduce((s, p) => s + p.count, 0);
+          pdf.setFillColor(40, 40, 60);
+          pdf.roundedRect(panelX + 4, panelY + panelH - 10, panelW - 8, 8, 2, 2, 'F');
+          pdf.setFontSize(7);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(200, 200, 220);
+          pdf.text(totalNew + ' brick' + (totalNew !== 1 ? 's' : '') + ' added', panelX + panelW / 2, panelY + panelH - 5.5, { align: 'center' });
+        }
+
+        // Step 7: Save PDF, restore full model and original camera
+        pdf.save('Grids2Bricks_Build_Guide.pdf');
+        loadedModelGroup.traverse(obj => { obj.visible = true; });
+        camera.position.copy(savedCamPos);
+        controls.target.copy(savedTarget);
+        camera.lookAt(savedTarget);
+        controls.update();
+        renderer.render(scene, camera);
+        newBtn.innerHTML = 'PDF Build Guide <span class="btn-icon">📄</span>';
+        newBtn.style.opacity = '1';
+        newBtn.disabled = false;
+      });
+    };
+  </script>
+
+</body>
+
+</html>
