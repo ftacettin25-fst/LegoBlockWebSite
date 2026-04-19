@@ -43,23 +43,19 @@ app = Flask(__name__, static_folder=dist_folder, static_url_path='')
 
 # ---------- STATIC FILE ROUTES ----------
 
-@app.route('/')
-def index():
-    return send_from_directory(dist_folder, 'index.html')
-
-@app.route('/<path:filename>')
-def static_files(filename):
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
     # Don't fall through for api routes
-    if filename.startswith('api/'):
+    if path.startswith('api/'):
         return jsonify({'error': 'Not found'}), 404
     
-    # Check if the file exists in dist, otherwise fallback to index.html (SPA routing)
-    file_path = os.path.join(dist_folder, filename)
-    if os.path.exists(file_path):
-        return send_from_directory(dist_folder, filename)
+    # If the file exists in the static folder, serve it
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+        return send_from_directory(app.static_folder, path)
     else:
-        # Fallback to index.html (SPA routing)
-        return send_from_directory(dist_folder, 'index.html')
+        # Fallback to index.html for SPA routing
+        return send_from_directory(app.static_folder, 'index.html')
 
 
 # ---------- API: CREATE ----------
