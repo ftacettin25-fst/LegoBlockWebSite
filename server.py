@@ -58,6 +58,7 @@ def static_files(filename):
     if os.path.exists(file_path):
         return send_from_directory(dist_folder, filename)
     else:
+        # Fallback to index.html (SPA routing)
         return send_from_directory(dist_folder, 'index.html')
 
 
