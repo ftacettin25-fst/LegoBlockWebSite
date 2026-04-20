@@ -14,31 +14,23 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-  <div class="announce">
-    <div class="announce__inner">
-      <span class="announce__msg"><i data-lucide="gift"></i> Free build guide PDF on every order</span>
-      <span class="announce__links"><a href="account.html">Sign in</a><a href="order.html">Track order</a></span>
-    </div>
-  </div>
   <header class="nav" id="nav">
     <div class="nav__inner">
       <a class="brand" href="index.html">Grids2Bricks</a>
       <nav class="nav__links">
-        <a href="create.html" data-nav-link>Customize</a>
+        <a href="create.html" data-nav-link>Create</a>
+        <a href="order.html" data-nav-link>Order</a>
         <a href="index.html#gallery" data-nav-link>Gallery</a>
-        <a href="order.html" data-nav-link>Orders</a>
-        <a href="index.html#faq" data-nav-link>FAQ</a>
       </nav>
-      <div class="nav__spacer"></div>
       <div class="nav__icons">
-        <span id="account-slot"></span>
         <a class="icon-btn" href="order.html" aria-label="Cart"><i data-lucide="shopping-bag"></i><span class="cart-badge" data-cart-badge>0</span></a>
+        <span id="account-slot"></span>
         <button class="icon-btn menu-toggle" id="menu-toggle" aria-label="Menu"><i data-lucide="menu"></i></button>
       </div>
     </div>
     <div class="mobile-drawer" id="mobile-drawer">
-      <a href="create.html">Customize</a><a href="index.html#gallery">Gallery</a>
-      <a href="order.html">Orders</a><a href="account.html">Account</a>
+      <a href="create.html">Create</a><a href="order.html">Order</a>
+      <a href="index.html#gallery">Gallery</a><a href="account.html">Account</a>
     </div>
   </header>
 
@@ -101,5 +93,9 @@
   </footer>
 
   <script type="module" src="../assets/js/account.js"></script>
+  <script type="module">
+    import { initNav, initReveal } from '../assets/js/nav.js';
+    document.addEventListener('DOMContentLoaded', () => { initNav(); initReveal(); });
+  </script>
 </body>
 </html>

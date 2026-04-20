@@ -203,6 +203,7 @@
 
 .result { display: none; }
 .result.show { display: block; }
+.result.visible { display: block; }
 .result__viewer {
   aspect-ratio: 1 / 1;
   background:
@@ -304,3 +305,52 @@
 .account-info { display: grid; gap: 10px; margin: 20px 0; }
 .account-info__row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--hairline); font-size: .92rem; }
 .account-info__row span:first-child { color: var(--fg-dim); }
+/* Dropzone (v1-compatible IDs, v2 light styling) */
+.dropzone {
+  position: relative;
+  border: 2px dashed var(--hairline-2, #E8E8EE);
+  border-radius: var(--r-lg);
+  background: var(--bg-alt);
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--t-fast), background var(--t-fast);
+  overflow: hidden;
+}
+.dropzone:hover, .dropzone.dragover {
+  border-color: var(--accent-deep);
+  background: var(--accent-soft);
+}
+.dropzone__icon i { width: 38px; height: 38px; color: var(--accent-deep); }
+.dropzone__label { font-weight: 800; margin-top: 10px; font-family: var(--font-ui); }
+.dropzone__hint { color: var(--fg-dim); font-size: .85rem; margin-top: 4px; }
+.dropzone__preview {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  display: none;
+}
+.dropzone__filename {
+  position: absolute; left: 12px; bottom: 12px;
+  background: rgba(255,255,255,.92);
+  padding: 6px 10px; border-radius: var(--r-pill);
+  font-size: .8rem; font-weight: 700;
+  display: none;
+}
+.dropzone__remove {
+  position: absolute; top: 10px; right: 10px;
+  width: 32px; height: 32px;
+  border-radius: var(--r-pill);
+  background: rgba(255,255,255,.95);
+  border: 1px solid var(--hairline);
+  display: none; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 2;
+}
+.dropzone__remove i { width: 16px; height: 16px; color: var(--fg); }
+.dropzone.has-file { padding: 0; min-height: 280px; border-style: solid; }
+.dropzone.has-file .dropzone__icon,
+.dropzone.has-file .dropzone__label,
+.dropzone.has-file .dropzone__hint { display: none; }
+.dropzone.has-file .dropzone__preview,
+.dropzone.has-file .dropzone__filename,
+.dropzone.has-file .dropzone__remove { display: flex; }
+.dropzone.has-file .dropzone__preview { display: block; }
