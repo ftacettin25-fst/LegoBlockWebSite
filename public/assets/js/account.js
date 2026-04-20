@@ -1,7 +1,7 @@
 // =========================================================
 // Account page: sign in / sign up / Google / reset / signed-in view.
 // =========================================================
-import { initNav } from './nav.js';
+import { initNav, initReveal } from './nav.js';
 import { Auth } from './auth.js';
 
 function $(s, r = document) { return r.querySelector(s); }
@@ -98,6 +98,7 @@ function prettyAuthError(e) {
 
 document.addEventListener('DOMContentLoaded', () => {
   initNav();
+  initReveal();
   bindTabs();
   $('#submit-btn').addEventListener('click', submit);
   $('#google-btn').addEventListener('click', google);
