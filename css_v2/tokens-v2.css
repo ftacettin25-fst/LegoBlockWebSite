@@ -1,0 +1,62 @@
+/* =========================================================
+   Grids2Bricks v2 — Funko-Clean Light Theme tokens
+   ========================================================= */
+:root {
+  /* Surfaces */
+  --bg:           #FFFFFF;
+  --bg-alt:       #F7F7F9;
+  --surface:      #FFFFFF;
+  --nav-bg:       #0E0E10;
+  --nav-fg:       #FFFFFF;
+
+  /* Text */
+  --fg:           #111114;
+  --fg-dim:       #5A5A66;
+  --fg-onDark:    #FFFFFF;
+  --fg-onDarkDim: #B8B8C2;
+
+  /* Accents */
+  --accent:       #B7A6E8;   /* soft purple */
+  --accent-deep:  #6E55C2;   /* deep purple — links, hover */
+  --accent-soft:  #EFEAFB;   /* tint backgrounds */
+
+  /* Lines */
+  --hairline:     #E8E8EE;
+  --hairline-2:   #D8D8E0;
+
+  /* Status */
+  --ok:    #16A34A;
+  --warn:  #D97706;
+  --err:   #DC2626;
+
+  /* Type */
+  --font-display: 'Pacifico', cursive;            /* wordmark only */
+  --font-ui:      'Mulish', system-ui, sans-serif;
+  --font-body:    'Mulish', system-ui, sans-serif;
+
+  /* Radii */
+  --r-sm:  8px;
+  --r-md:  14px;
+  --r-lg:  20px;
+  --r-pill: 999px;
+
+  /* Shadow */
+  --shadow-sm: 0 1px 2px rgba(17,17,20,.04);
+  --shadow-md: 0 6px 18px rgba(17,17,20,.06);
+  --shadow-lg: 0 18px 40px rgba(17,17,20,.10);
+
+  /* Motion */
+  --t-fast: 150ms ease;
+  --t-med:  220ms ease;
+
+  /* Layout */
+  --container: 1200px;
+  --container-narrow: 880px;
+
+  /* Stud micro-pattern (4×4) */
+  --stud-pattern:
+    radial-gradient(circle at 25% 25%, rgba(110,85,194,.08) 2px, transparent 2.5px),
+    radial-gradient(circle at 75% 25%, rgba(110,85,194,.08) 2px, transparent 2.5px),
+    radial-gradient(circle at 25% 75%, rgba(110,85,194,.08) 2px, transparent 2.5px),
+    radial-gradient(circle at 75% 75%, rgba(110,85,194,.08) 2px, transparent 2.5px);
+}
