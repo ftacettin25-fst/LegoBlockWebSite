@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Grids2Bricks — Transform any photo into a custom LEGO BrickHeadz figure. Built brick by brick, just for you." />
+  <title>Grids2Bricks — Custom LEGO BrickHeadz Figures</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/pages.css" />
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- ===== NAV ===== -->
+  <nav class="nav" id="nav">
+    <div class="nav__inner">
+      <a href="index.html" class="brand">
+        Grids<span class="brand__dot">2</span>Bricks
+      </a>
+      <div class="nav__links">
+        <a href="index.html" data-nav-link>Home</a>
+        <a href="create.html" data-nav-link>Create</a>
+        <a href="order.html" data-nav-link>Orders</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <div class="nav__right">
+        <a href="order.html" class="icon-btn" aria-label="Cart">
+          <i data-lucide="shopping-cart"></i>
+          <span class="cart-badge" data-cart-badge style="display:none">0</span>
+        </a>
+        <div id="account-slot"></div>
+        <button class="icon-btn menu-toggle" id="menu-toggle" aria-label="Menu">
+          <i data-lucide="menu"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-drawer" id="mobile-drawer">
+    <a href="index.html">Home</a>
+    <a href="create.html">Create</a>
+    <a href="order.html">Orders</a>
+    <a href="#faq">FAQ</a>
+    <a href="#contact">Contact</a>
+  </div>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero__grid">
+        <div>
+          <span class="eyebrow"><i data-lucide="sparkles"></i> AI-powered • Brick-perfect</span>
+          <h1 class="hero__title">Your face,<br/><span class="text-grad">built brick by brick.</span></h1>
+          <p class="hero__sub">Upload a single photo. We generate a custom LEGO BrickHeadz figurine with your hairstyle, outfit, and skin tone — printable and orderable.</p>
+          <div class="hero__cta">
+            <a href="create.html" class="btn btn--primary btn--lg">
+              <i data-lucide="wand-sparkles"></i> Create yours
+            </a>
+            <a href="#how" class="btn btn--outline btn--lg">
+              <i data-lucide="play"></i> How it works
+            </a>
+          </div>
+        </div>
+        <div class="hero__visual">
+          <img src="images/osimhen_brickheadz.png" alt="Custom BrickHeadz preview"
+               onerror="this.style.display='none'" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HOW IT WORKS ===== -->
+  <section class="section" id="how">
+    <div class="container">
+      <div class="section__head reveal">
+        <span class="eyebrow"><i data-lucide="layers"></i> Process</span>
+        <h2>From photo to bricks in three steps</h2>
+        <p>No skill required. Upload, preview, order — we handle the design pipeline.</p>
+      </div>
+      <div class="steps">
+        <div class="card card--hover step reveal">
+          <div class="step__num">1</div>
+          <h3><i data-lucide="image-up"></i> Upload</h3>
+          <p>Drop a clear photo. Front-facing portraits give the best results.</p>
+        </div>
+        <div class="card card--hover step reveal">
+          <div class="step__num">2</div>
+          <h3><i data-lucide="cpu"></i> AI builds</h3>
+          <p>Our pipeline analyzes hair, skin, and outfit, then assembles a brick model.</p>
+        </div>
+        <div class="card card--hover step reveal">
+          <div class="step__num">3</div>
+          <h3><i data-lucide="package"></i> Preview & order</h3>
+          <p>Rotate the 3D preview, download the .ldr, or order the physical bricks.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== GALLERY ===== -->
+  <section class="section section--tight" id="gallery">
+    <div class="container">
+      <div class="section__head reveal">
+        <span class="eyebrow"><i data-lucide="gallery-horizontal-end"></i> Gallery</span>
+        <h2>Featured BrickHeadz</h2>
+      </div>
+      <div class="gallery">
+        <div class="gallery__item reveal"><img src="images/osimhen_brickheadz.png" alt="Osimhen" onerror="this.parentElement.style.background='linear-gradient(135deg,#8b5cf6,#22d3ee)'" /><div class="gallery__caption">Osimhen</div></div>
+        <div class="gallery__item reveal"><img src="images/speed_brickheadz.png" alt="Speed" onerror="this.parentElement.style.background='linear-gradient(135deg,#ec4899,#8b5cf6)'" /><div class="gallery__caption">Speed</div></div>
+        <div class="gallery__item reveal"><img src="images/messi_brickheadz.png" alt="Messi" onerror="this.parentElement.style.background='linear-gradient(135deg,#22d3ee,#8b5cf6)'" /><div class="gallery__caption">Messi</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TEAM ===== -->
+  <section class="section" id="team">
+    <div class="container">
+      <div class="section__head reveal">
+        <span class="eyebrow"><i data-lucide="users"></i> Team</span>
+        <h2>The builders behind Grids2Bricks</h2>
+      </div>
+      <div class="team">
+        <div class="card card--hover reveal">
+          <div class="team__avatar">A</div>
+          <div class="team__role">Co-founder</div>
+          <h3>Alex</h3>
+          <p>Computer vision & 3D pipeline.</p>
+        </div>
+        <div class="card card--hover reveal">
+          <div class="team__avatar">B</div>
+          <div class="team__role">Co-founder</div>
+          <h3>Beren</h3>
+          <p>Product, brand, design system.</p>
+        </div>
+        <div class="card card--hover reveal">
+          <div class="team__avatar">C</div>
+          <div class="team__role">Engineer</div>
+          <h3>Cem</h3>
+          <p>Backend, Firebase, deployment.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FAQ ===== -->
+  <section class="section" id="faq">
+    <div class="container">
+      <div class="section__head reveal">
+        <span class="eyebrow"><i data-lucide="help-circle"></i> FAQ</span>
+        <h2>Frequently asked</h2>
+      </div>
+      <div class="faq reveal">
+        <div class="faq__item"><button class="faq__q">What file format do I get? <i data-lucide="chevron-down"></i></button><div class="faq__a"><p>You receive an LDraw <code>.ldr</code> file you can open in Studio, BrickLink, LeoCAD, or any LDraw-compatible tool. We also export a printable PDF build guide.</p></div></div>
+        <div class="faq__item"><button class="faq__q">Can I order the physical bricks? <i data-lucide="chevron-down"></i></button><div class="faq__a"><p>Yes — add the model to your cart and we'll source the official LEGO bricks needed and ship them with the build guide.</p></div></div>
+        <div class="faq__item"><button class="faq__q">What kind of photo works best? <i data-lucide="chevron-down"></i></button><div class="faq__a"><p>A well-lit, front-facing portrait with the head clearly visible. Avoid sunglasses, hats that hide your hair, and heavy backlighting.</p></div></div>
+        <div class="faq__item"><button class="faq__q">Is my photo stored? <i data-lucide="chevron-down"></i></button><div class="faq__a"><p>The photo is processed for the build and discarded after the model is generated. Only the resulting <code>.ldr</code> file is saved.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CONTACT ===== -->
+  <section class="section section--tight" id="contact">
+    <div class="container">
+      <div class="section__head reveal">
+        <span class="eyebrow"><i data-lucide="mail"></i> Contact</span>
+        <h2>Get in touch</h2>
+        <p>Questions, partnerships, or feedback — drop us a line.</p>
+      </div>
+      <form class="contact card reveal" onsubmit="event.preventDefault(); alert('Thanks — we will be in touch.');">
+        <div class="field"><label>Name</label><input class="input" type="text" required /></div>
+        <div class="field"><label>Email</label><input class="input" type="email" required /></div>
+        <div class="field"><label>Message</label><textarea class="textarea" required></textarea></div>
+        <button class="btn btn--primary btn--block" type="submit"><i data-lucide="send"></i> Send message</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__inner">
+        <a href="index.html" class="brand">Grids<span class="brand__dot">2</span>Bricks</a>
+        <div class="footer__links">
+          <a href="index.html">Home</a>
+          <a href="create.html">Create</a>
+          <a href="order.html">Orders</a>
+          <a href="#faq">FAQ</a>
+          <a href="#contact">Contact</a>
+        </div>
+      </div>
+      <div class="footer__bottom">© 2026 Grids2Bricks. LEGO® is a trademark of the LEGO Group, which does not sponsor or endorse this site.</div>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initNav, initReveal } from './assets/js/nav.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      initNav(); initReveal();
+      document.querySelectorAll('.faq__item').forEach(item => {
+        item.querySelector('.faq__q').addEventListener('click', () => item.classList.toggle('open'));
+      });
+    });
+  </script>
+</body>
+</html>

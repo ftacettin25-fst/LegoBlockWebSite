@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Sign in to your Grids2Bricks account." />
+  <title>Account — Grids2Bricks</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/pages.css" />
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="nav__inner">
+      <a href="index.html" class="brand">Grids<span class="brand__dot">2</span>Bricks</a>
+      <div class="nav__links">
+        <a href="index.html" data-nav-link>Home</a>
+        <a href="create.html" data-nav-link>Create</a>
+        <a href="order.html" data-nav-link>Orders</a>
+      </div>
+      <div class="nav__right">
+        <a href="order.html" class="icon-btn" aria-label="Cart">
+          <i data-lucide="shopping-cart"></i>
+          <span class="cart-badge" data-cart-badge style="display:none">0</span>
+        </a>
+        <div id="account-slot"></div>
+        <button class="icon-btn menu-toggle" id="menu-toggle" aria-label="Menu"><i data-lucide="menu"></i></button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-drawer" id="mobile-drawer">
+    <a href="index.html">Home</a><a href="create.html">Create</a><a href="order.html">Orders</a>
+  </div>
+
+  <main class="auth-wrap">
+    <div class="container">
+      <div class="auth-card card card--glow reveal">
+
+        <!-- Form (signed-out) -->
+        <div id="auth-form-section">
+          <div style="text-align:center;margin-bottom:20px">
+            <span class="eyebrow"><i data-lucide="lock"></i> Account</span>
+            <h2 style="margin-top:12px">Welcome back</h2>
+            <p>Sign in or create an account to track your builds.</p>
+          </div>
+
+          <div class="tabs">
+            <button class="tab active" data-tab="signin">Sign in</button>
+            <button class="tab" data-tab="signup">Create account</button>
+          </div>
+
+          <div id="auth-error" class="alert alert--error" style="display:none"></div>
+
+          <div class="field"><label>Email</label><input id="email" class="input" type="email" autocomplete="email" placeholder="you@example.com" /></div>
+          <div class="field"><label>Password</label><input id="password" class="input" type="password" autocomplete="current-password" placeholder="••••••••" /></div>
+
+          <button id="submit-btn" class="btn btn--primary btn--block" data-mode="signin">Sign in</button>
+
+          <div style="text-align:right;margin-top:8px">
+            <a href="#" id="forgot-link" style="color:var(--accent-hi);font-size:.85rem">Forgot password?</a>
+          </div>
+
+          <div class="divider">or continue with</div>
+
+          <button id="google-btn" class="btn btn--ghost btn--block">
+            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16.1 19 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.6-5.2l-6.3-5.2C29.2 35 26.7 36 24 36c-5.2 0-9.6-3.5-11.3-8.3l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.2 5.6l6.3 5.2C41.6 36.6 44 30.9 44 24c0-1.3-.1-2.3-.4-3.5z"/></svg>
+            Continue with Google
+          </button>
+        </div>
+
+        <!-- Account view (signed-in) -->
+        <div id="auth-account-section" style="display:none">
+          <div style="text-align:center;margin-bottom:14px">
+            <span class="avatar" style="width:56px;height:56px;font-size:1.4rem"><i data-lucide="user"></i></span>
+            <h2 style="margin-top:14px">You're signed in</h2>
+          </div>
+          <div class="account-info">
+            <div class="account-row"><span>Email</span><span id="acc-email">—</span></div>
+            <div class="account-row"><span>Sign-in method</span><span id="acc-method">—</span></div>
+            <div class="account-row"><span>Account created</span><span id="acc-created">—</span></div>
+          </div>
+          <button id="signout-btn" class="btn btn--outline btn--block" style="margin-top:18px">
+            <i data-lucide="log-out"></i> Sign out
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__inner">
+        <a href="index.html" class="brand">Grids<span class="brand__dot">2</span>Bricks</a>
+        <div class="footer__links">
+          <a href="index.html">Home</a><a href="create.html">Create</a><a href="order.html">Orders</a>
+        </div>
+      </div>
+      <div class="footer__bottom">© 2026 Grids2Bricks.</div>
+    </div>
+  </footer>
+
+  <script type="module" src="assets/js/account.js"></script>
+</body>
+</html>

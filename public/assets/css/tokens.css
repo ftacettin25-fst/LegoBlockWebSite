@@ -1,0 +1,66 @@
+/* =========================================================
+   Grids2Bricks — Design Tokens
+   Dark / Futuristic / 3D-forward
+   ========================================================= */
+:root {
+  /* Surfaces */
+  --bg:            #0a0a0f;
+  --bg-elev-1:     #101018;
+  --bg-elev-2:     #14141d;
+  --bg-glass:      rgba(20, 20, 29, 0.55);
+  --bg-glass-strong: rgba(20, 20, 29, 0.78);
+
+  /* Text */
+  --fg:            #f5f5fa;
+  --fg-muted:      #a4a4b8;
+  --fg-dim:        #6b6b80;
+
+  /* Accent — evolved from your purple rgb(70,0,80) */
+  --accent:        #8b5cf6;
+  --accent-hi:     #a78bfa;
+  --accent-lo:     #6d28d9;
+  --accent-glow:   rgba(139, 92, 246, 0.45);
+  --accent-soft:   rgba(139, 92, 246, 0.12);
+
+  /* Secondary accents for variety */
+  --cyan:          #22d3ee;
+  --pink:          #ec4899;
+
+  /* Status */
+  --success:       #34d399;
+  --warning:       #fbbf24;
+  --danger:        #f87171;
+
+  /* Borders */
+  --hairline:      rgba(255, 255, 255, 0.07);
+  --hairline-2:    rgba(255, 255, 255, 0.12);
+  --hairline-accent: rgba(139, 92, 246, 0.28);
+
+  /* Radii */
+  --r-sm:  8px;
+  --r-md:  12px;
+  --r-lg:  18px;
+  --r-xl:  24px;
+  --r-2xl: 32px;
+  --r-full: 9999px;
+
+  /* Shadows */
+  --shadow-1: 0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 24px rgba(0,0,0,0.45);
+  --shadow-2: 0 1px 0 rgba(255,255,255,0.05) inset, 0 20px 60px rgba(0,0,0,0.55);
+  --shadow-glow: 0 0 0 1px var(--hairline-accent), 0 20px 60px -10px var(--accent-glow);
+
+  /* Type */
+  --font-display: 'Montserrat', system-ui, sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+
+  /* Motion */
+  --ease:        cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --t-fast:      150ms;
+  --t-med:       280ms;
+  --t-slow:      520ms;
+
+  /* Layout */
+  --maxw:        1240px;
+  --nav-h:       72px;
+}
