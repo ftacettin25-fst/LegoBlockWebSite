@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 # Exit on error
-set -e
+set -o errexit
 
-echo "Building Grids2Bricks React SPA Frontend..."
-cd grids2bricks-hub
+echo "Installing frontend dependencies and building..."
+cd frontend
 npm install
 npm run build
 cd ..
 
-echo "Installing Python Backend Requirements..."
-pip install -r requirements.txt
-
-echo "Build complete! Static files are in grids2bricks-hub/dist and ready for Flask."
+echo "Installing backend dependencies..."
+pip install -r backend/requirements.txt
