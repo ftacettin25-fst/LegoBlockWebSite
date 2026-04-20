@@ -50,7 +50,7 @@ def _try_init_firebase():
 _try_init_firebase()
 
 # ── Flask app ────────────────────────────────────────────────────────────────
-DIST_DIR = os.path.join(SCRIPT_DIR, "grids2bricks-hub", "dist")
+DIST_DIR = os.path.join(SCRIPT_DIR, "public")
 
 app = Flask(__name__, static_folder=DIST_DIR, static_url_path="")
 
