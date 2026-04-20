@@ -50,7 +50,8 @@ def _try_init_firebase():
 _try_init_firebase()
 
 # ── Flask app ────────────────────────────────────────────────────────────────
-DIST_DIR = os.path.join(SCRIPT_DIR, "public")
+# Since server.py is INSIDE the public folder now, static files are in the same dir.
+DIST_DIR = SCRIPT_DIR
 
 app = Flask(__name__, static_folder=DIST_DIR, static_url_path="")
 
@@ -71,17 +72,20 @@ def serve_spa(path):
 
     static_root = app.static_folder
     if not static_root or not os.path.isdir(static_root):
-        return (
-            "<h1>Frontend not built</h1>"
-            "<p>Run <code>bash build.sh</code> to build the React app first.</p>",
-            503,
-        )
+        return ("<h1>Static directory missing</h1><p>The frontend files could not be found.</p>", 503)
 
+    # 1. Try serving the file exactly as requested (e.g., /assets/style.css)
     full_path = os.path.join(static_root, path)
     if path and os.path.isfile(full_path):
         return send_from_directory(static_root, path)
 
-    # SPA fallback
+    # 2. Support clean URLs (e.g., /create -> create.html)
+    if path and not path.endswith(".html"):
+        html_path = path + ".html"
+        if os.path.isfile(os.path.join(static_root, html_path)):
+            return send_from_directory(static_root, html_path)
+
+    # 3. Default to index.html
     return send_from_directory(static_root, "index.html")
 
 
