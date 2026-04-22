@@ -52,15 +52,14 @@ export function bindNavAccount(slotEl) {
   Auth.onChange((user) => {
     if (!user) {
       slotEl.innerHTML = `
-        <a href="account.html" class="btn btn--ghost btn--sm">
+        <a href="account.html" class="btn btn--accent btn--sm">
           <i data-lucide="user"></i> Sign in
         </a>`;
     } else {
-      const initial = (user.email || 'U').trim().charAt(0).toUpperCase();
       slotEl.innerHTML = `
         <div class="account-menu" id="account-menu">
           <button class="icon-btn" id="account-trigger" aria-label="Account">
-            <span class="avatar">${initial}</span>
+            <i data-lucide="user"></i>
           </button>
           <div class="account-menu__panel">
             <div class="account-menu__email">${user.email || 'Signed in'}</div>
