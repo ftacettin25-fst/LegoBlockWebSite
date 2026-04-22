@@ -1,0 +1,13 @@
+{
+  "hair_type": "short_straight_male",
+  "hair_color": "dark brown",
+  "hair_ldraw_code": 6,
+  "top_clothing_color": "white",
+  "top_ldraw_code": 15,
+  "bottom_clothing_color": "black",
+  "bottom_ldraw_code": 0,
+  "skin_color_desc": "light",
+  "skin_ldraw_code": 19,
+  "confidence": 0.95,
+  "person_number": 1
+}
