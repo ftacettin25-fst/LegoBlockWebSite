@@ -8,11 +8,13 @@ const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 const ACCEPT = ['image/jpeg', 'image/png', 'image/webp'];
 
 const STAGES = [
-  { id: 's1', label: 'Uploading photo',     icon: 'upload-cloud' },
-  { id: 's2', label: 'Analyzing features',  icon: 'scan-face' },
-  { id: 's3', label: 'Generating views',    icon: 'images' },
-  { id: 's4', label: 'Assembling bricks',   icon: 'blocks' },
-  { id: 's5', label: 'Finalizing model',    icon: 'sparkles' },
+  { id: 's1', label: 'Uploading photo',         icon: 'upload-cloud' },
+  { id: 's2', label: 'AI appearance analysis',  icon: 'scan-face' },
+  { id: 's3', label: 'Generating views',        icon: 'images' },
+  { id: 's4', label: 'Analyzing features',      icon: 'search' },
+  { id: 's5', label: 'Building 3D model',       icon: 'box' },
+  { id: 's6', label: 'Merging bricks',          icon: 'blocks' },
+  { id: 's7', label: 'Finalizing',              icon: 'sparkles' },
 ];
 
 let uploadedFile = null;
@@ -99,7 +101,7 @@ async function build() {
       stageIdx += 1;
       setStage(stageIdx, 'active');
     }
-  }, 4000);
+  }, 3000);
 
   const fd = new FormData();
   fd.append('photo', uploadedFile);

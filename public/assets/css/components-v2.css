@@ -275,6 +275,7 @@
   padding: 20px;
 }
 .overlay.open { display: flex; }
+.overlay.active { display: flex; }
 .overlay__panel {
   background: #fff;
   border: 1px solid var(--hairline);
