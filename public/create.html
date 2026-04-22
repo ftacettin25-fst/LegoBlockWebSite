@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="../assets/css/components-v2.css" />
   <link rel="stylesheet" href="../assets/css/pages-v2.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script type="importmap">
     { "imports": {
         "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
@@ -72,7 +73,7 @@
           </div>
         </div>
 
-        <!-- Tips + Result -->
+        <!-- Tips -->
         <div class="card reveal">
           <h3 style="margin-bottom:10px">Tips for best results</h3>
           <div class="tips">
@@ -81,19 +82,21 @@
             <div class="tip"><i data-lucide="image"></i><span>High resolution, no heavy filters.</span></div>
             <div class="tip"><i data-lucide="glasses"></i><span>Remove sunglasses or hats covering features.</span></div>
           </div>
+        </div>
+      </div>
 
-          <div id="result" class="result" style="margin-top:20px">
-            <h3 style="margin-bottom:10px">Your BrickHeadz</h3>
-            <div id="chips" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"></div>
-            <div id="ldr-viewer" class="result__viewer" style="height:280px;background:var(--bg-alt);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center">
-              <i data-lucide="box" style="width:48px;height:48px;color:var(--accent-deep);opacity:.6"></i>
-            </div>
-            <div class="result__actions" style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
-              <a class="btn btn--primary" id="download-link" href="#"><i data-lucide="download"></i> Download .ldr</a>
-              <button class="btn btn--accent" id="cart-btn"><i data-lucide="shopping-bag"></i> Add to cart</button>
-              <button class="btn btn--ghost" id="reset-btn"><i data-lucide="refresh-cw"></i> Start over</button>
-            </div>
-          </div>
+      <!-- Result row (full width, below uploader+tips) -->
+      <div id="result" class="result result--wide card reveal" style="margin-top:24px">
+        <h3 style="margin-bottom:10px">Your BrickHeadz</h3>
+        <div id="chips" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"></div>
+        <div id="ldr-viewer" class="result__viewer result__viewer--tall">
+          <i data-lucide="box" style="width:48px;height:48px;color:var(--accent-deep);opacity:.6"></i>
+        </div>
+        <div class="result__actions" style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+          <a class="btn btn--primary" id="download-link" href="#"><i data-lucide="download"></i> Download .ldr</a>
+          <button class="btn btn--secondary" id="btn-pdf"><i data-lucide="file-text"></i> PDF build guide</button>
+          <button class="btn btn--accent" id="cart-btn"><i data-lucide="shopping-bag"></i> Add to cart</button>
+          <button class="btn btn--ghost" id="reset-btn"><i data-lucide="refresh-cw"></i> Start over</button>
         </div>
       </div>
     </div>
