@@ -13,6 +13,59 @@
   <link rel="stylesheet" href="../assets/css/components-v2.css" />
   <link rel="stylesheet" href="../assets/css/pages-v2.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .hero-carousel-container {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      border-radius: 16px;
+      box-shadow: var(--shadow-lg);
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .hero-carousel-track {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+    }
+    .hero-carousel-slide {
+      min-width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      gap: 16px;
+      box-sizing: border-box;
+    }
+    .hero-carousel-img {
+      width: calc(50% - 8px);
+      object-fit: cover;
+      border-radius: 8px;
+      aspect-ratio: 1 / 1;
+      background: var(--surface-alt);
+    }
+    .hero-carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.4);
+      color: white;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .hero-carousel-btn:hover {
+      background: rgba(0,0,0,0.7);
+    }
+    .hero-carousel-prev { left: 16px; }
+    .hero-carousel-next { right: 16px; }
+  </style>
 </head>
 <body>
   <!-- Navbar -->
@@ -55,8 +108,36 @@
           </div>
         </div>
         <div class="hero__visual reveal">
-          <div class="hero__halo"></div>
-          <div class="hero__product"><i data-lucide="user-square-2"></i></div>
+          <div class="hero-carousel-container" id="heroCarousel">
+            <button class="hero-carousel-btn hero-carousel-prev" aria-label="Previous">
+              <i data-lucide="chevron-left"></i>
+            </button>
+            <div class="hero-carousel-track" id="heroCarouselTrack">
+              <div class="hero-carousel-slide">
+                <img src="images/osimhen.png" alt="Osimhen" class="hero-carousel-img">
+                <img src="images/osimhen_brickheadz.png" alt="Osimhen BrickHeadz" class="hero-carousel-img">
+              </div>
+              <div class="hero-carousel-slide">
+                <img src="images/mrbeast.jpg" alt="MrBeast" class="hero-carousel-img">
+                <img src="images/mrbeast_brickheadz.png" alt="MrBeast BrickHeadz" class="hero-carousel-img">
+              </div>
+              <div class="hero-carousel-slide">
+                <img src="images/speed.png" alt="Speed" class="hero-carousel-img">
+                <img src="images/speed_brickheadz.png" alt="Speed BrickHeadz" class="hero-carousel-img">
+              </div>
+              <div class="hero-carousel-slide">
+                <img src="images/zendayaandtom.jpg" alt="Zendaya & Tom" class="hero-carousel-img">
+                <img src="images/zendayaandtom_brickheadz.png" alt="Zendaya & Tom BrickHeadz" class="hero-carousel-img">
+              </div>
+              <div class="hero-carousel-slide">
+                <img src="images/friends.jpg" alt="Friends" class="hero-carousel-img">
+                <img src="images/friends_brickheadz.png" alt="Friends BrickHeadz" class="hero-carousel-img">
+              </div>
+            </div>
+            <button class="hero-carousel-btn hero-carousel-next" aria-label="Next">
+              <i data-lucide="chevron-right"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -219,7 +300,53 @@
 
   <script type="module">
     import { initNav, initReveal } from '../assets/js/nav.js';
-    document.addEventListener('DOMContentLoaded', () => { initNav(); initReveal(); });
+    document.addEventListener('DOMContentLoaded', () => { 
+      initNav(); 
+      initReveal(); 
+
+      // Carousel Logic
+      const track = document.getElementById('heroCarouselTrack');
+      const slides = document.querySelectorAll('.hero-carousel-slide');
+      const prevBtn = document.querySelector('.hero-carousel-prev');
+      const nextBtn = document.querySelector('.hero-carousel-next');
+      
+      if(track && slides.length > 0) {
+        let currentIndex = 0;
+        let slideInterval;
+        
+        const updateCarousel = () => {
+          track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        };
+        
+        const nextSlide = () => {
+          currentIndex = (currentIndex + 1) % slides.length;
+          updateCarousel();
+        };
+        
+        const prevSlide = () => {
+          currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+          updateCarousel();
+        };
+        
+        const startAutoSlide = () => {
+          slideInterval = setInterval(nextSlide, 3000);
+        };
+        
+        const stopAutoSlide = () => {
+          clearInterval(slideInterval);
+        };
+
+        nextBtn.addEventListener('click', () => { nextSlide(); stopAutoSlide(); startAutoSlide(); });
+        prevBtn.addEventListener('click', () => { prevSlide(); stopAutoSlide(); startAutoSlide(); });
+        
+        const container = document.getElementById('heroCarousel');
+        container.addEventListener('mouseenter', stopAutoSlide);
+        container.addEventListener('mouseleave', startAutoSlide);
+
+        startAutoSlide();
+        lucide.createIcons();
+      }
+    });
   </script>
 </body>
 </html>
