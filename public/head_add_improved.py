@@ -15,8 +15,6 @@ import fal_client      # pip install fal-client
 # --- CONFIGURATION ---
 # =============================================================================
 
-os.environ["FAL_KEY"] = "92d3be43-e782-48a7-86d7-e7fbc5be29c9:e81ebb1823d07d90eb81b0faadafaef8"
-
 # Template images (plain grey default BrickHeadz, one per view) – Top view removed
 TEMPLATE_PATHS = {
     "Front": r"picture examples/DefaultGrayGuy_FrontView.PNG",
@@ -596,30 +594,18 @@ def grid_perspective(path):
 
 def _segment_foreground(img):
     h, w = img.shape[:2]
-    mask     = np.zeros((h, w), np.uint8)
-    bgdModel = np.zeros((1, 65), np.float64)
-    fgdModel = np.zeros((1, 65), np.float64)
-    rect     = (int(w * 0.05), int(h * 0.02), int(w * 0.9), h - int(h * 0.02) - 1)
+    # Option 1: Global Exact Match based on top-left pixel
+    bg_color = img[0, 0]
+    is_bg = np.all(img == bg_color, axis=-1)
 
-    cv2.grabCut(img, mask, rect, bgdModel, fgdModel, 5, cv2.GC_INIT_WITH_RECT)
-
-    bg_reference_mask = np.zeros((h, w), np.uint8)
-    cv2.rectangle(bg_reference_mask,
-                  (rect[0], rect[1]),
-                  (rect[0] + rect[2], rect[1] + rect[3]), 0, -1)
-    bg_reference_mask = cv2.bitwise_not(bg_reference_mask)
-
-    mean_bg_color = cv2.mean(img, mask=bg_reference_mask)[:3]
-    diff      = cv2.absdiff(img, np.array(mean_bg_color, dtype=np.uint8))
-    mask_diff = np.all(diff < [20, 20, 20], axis=2)
-    mask[mask_diff & (mask == cv2.GC_PR_FGD)] = cv2.GC_PR_BGD
-
-    cv2.grabCut(img, mask, rect, bgdModel, fgdModel, 5, cv2.GC_INIT_WITH_MASK)
-    binary_mask  = np.where((mask == 1) | (mask == 3), 255, 0).astype("uint8")
+    # binary_mask: 255 for foreground, 0 for background
+    binary_mask = np.where(is_bg, 0, 255).astype('uint8')
+    
     kernel       = np.ones((3, 3), np.uint8)
     clean_binary = cv2.morphologyEx(binary_mask, cv2.MORPH_OPEN, kernel, iterations=1)
     contours, _  = cv2.findContours(clean_binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     return clean_binary, contours
+
 
 
 # =============================================================================
