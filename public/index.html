@@ -1,13 +1,16 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Grids2Bricks — Custom BrickHeadz from your photo</title>
-  <meta name="description" content="Turn any photo into a custom BrickHeadz model. Upload, customize, and get a brick-by-brick build guide." />
+  <meta name="description"
+    content="Turn any photo into a custom BrickHeadz model. Upload, customize, and get a brick-by-brick build guide." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Mulish:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Mulish:wght@400;500;700;800&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="../assets/css/tokens-v2.css" />
   <link rel="stylesheet" href="../assets/css/base-v2.css" />
   <link rel="stylesheet" href="../assets/css/components-v2.css" />
@@ -23,10 +26,12 @@
       background: var(--surface);
       border: 1px solid var(--border);
     }
+
     .hero-carousel-track {
       display: flex;
       transition: transform 0.5s ease-in-out;
     }
+
     .hero-carousel-slide {
       min-width: 100%;
       display: flex;
@@ -36,18 +41,20 @@
       gap: 16px;
       box-sizing: border-box;
     }
+
     .hero-carousel-img {
       width: calc(50% - 8px);
       object-fit: cover;
       border-radius: 8px;
-      aspect-ratio: 1 / 1;
+      aspect-ratio: 4 / 5;
       background: var(--surface-alt);
     }
+
     .hero-carousel-btn {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(0,0,0,0.4);
+      background: rgba(0, 0, 0, 0.4);
       color: white;
       border: none;
       width: 36px;
@@ -60,13 +67,21 @@
       justify-content: center;
       transition: background 0.2s;
     }
+
     .hero-carousel-btn:hover {
-      background: rgba(0,0,0,0.7);
+      background: rgba(0, 0, 0, 0.7);
     }
-    .hero-carousel-prev { left: 16px; }
-    .hero-carousel-next { right: 16px; }
+
+    .hero-carousel-prev {
+      left: 16px;
+    }
+
+    .hero-carousel-next {
+      right: 16px;
+    }
   </style>
 </head>
+
 <body>
   <!-- Navbar -->
   <header class="nav" id="nav">
@@ -100,8 +115,9 @@
       <div class="hero__grid">
         <div class="reveal">
           <span class="eyebrow">Custom BrickHeadz</span>
-          <h1>Your face,<br/>brick by brick.</h1>
-          <p class="lead">Upload a photo. We turn it into a one-of-a-kind BrickHeadz model with a free step-by-step build guide.</p>
+          <h1>Your face,<br />brick by brick.</h1>
+          <p class="lead">Upload a photo. We turn it into a one-of-a-kind BrickHeadz model with a free step-by-step
+            build guide.</p>
           <div class="hero__ctas">
             <a href="create.html" class="btn btn--primary btn--lg"><i data-lucide="sparkles"></i> Create yours</a>
             <a href="#gallery" class="btn btn--secondary btn--lg">See gallery</a>
@@ -238,10 +254,26 @@
         <h2>The makers behind the bricks</h2>
       </div>
       <div class="team__grid">
-        <div class="team-member reveal"><div class="team-member__avatar"><i data-lucide="user"></i></div><h4>Alex</h4><p>Founder</p></div>
-        <div class="team-member reveal"><div class="team-member__avatar"><i data-lucide="user"></i></div><h4>Jordan</h4><p>Engineer</p></div>
-        <div class="team-member reveal"><div class="team-member__avatar"><i data-lucide="user"></i></div><h4>Sam</h4><p>Designer</p></div>
-        <div class="team-member reveal"><div class="team-member__avatar"><i data-lucide="user"></i></div><h4>Riley</h4><p>Operations</p></div>
+        <div class="team-member reveal">
+          <div class="team-member__avatar"><i data-lucide="user"></i></div>
+          <h4>Alex</h4>
+          <p>Founder</p>
+        </div>
+        <div class="team-member reveal">
+          <div class="team-member__avatar"><i data-lucide="user"></i></div>
+          <h4>Jordan</h4>
+          <p>Engineer</p>
+        </div>
+        <div class="team-member reveal">
+          <div class="team-member__avatar"><i data-lucide="user"></i></div>
+          <h4>Sam</h4>
+          <p>Designer</p>
+        </div>
+        <div class="team-member reveal">
+          <div class="team-member__avatar"><i data-lucide="user"></i></div>
+          <h4>Riley</h4>
+          <p>Operations</p>
+        </div>
       </div>
     </div>
   </section>
@@ -249,12 +281,26 @@
   <!-- FAQ -->
   <section id="faq" class="band-alt">
     <div class="container">
-      <div class="center reveal"><span class="eyebrow">FAQ</span><h2>Common questions</h2></div>
+      <div class="center reveal"><span class="eyebrow">FAQ</span>
+        <h2>Common questions</h2>
+      </div>
       <div class="faq" style="margin-top:24px">
-        <details class="faq-item reveal"><summary>How long does it take?<i data-lucide="plus"></i></summary><p>Most builds are ready within a few minutes. Shipping varies by region.</p></details>
-        <details class="faq-item reveal"><summary>Which photo works best?<i data-lucide="plus"></i></summary><p>A bright, front-facing portrait with clear features works best. Avoid sunglasses and heavy filters.</p></details>
-        <details class="faq-item reveal"><summary>Do you ship internationally?<i data-lucide="plus"></i></summary><p>Yes, we ship worldwide. Shipping options appear at checkout.</p></details>
-        <details class="faq-item reveal"><summary>Can I get just the .ldr file?<i data-lucide="plus"></i></summary><p>Yes — every order includes the .ldr file and PDF guide so you can build it yourself.</p></details>
+        <details class="faq-item reveal">
+          <summary>How long does it take?<i data-lucide="plus"></i></summary>
+          <p>Most builds are ready within a few minutes. Shipping varies by region.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary>Which photo works best?<i data-lucide="plus"></i></summary>
+          <p>A bright, front-facing portrait with clear features works best. Avoid sunglasses and heavy filters.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary>Do you ship internationally?<i data-lucide="plus"></i></summary>
+          <p>Yes, we ship worldwide. Shipping options appear at checkout.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary>Can I get just the .ldr file?<i data-lucide="plus"></i></summary>
+          <p>Yes — every order includes the .ldr file and PDF guide so you can build it yourself.</p>
+        </details>
       </div>
     </div>
   </section>
@@ -265,7 +311,8 @@
       <div class="footer__grid">
         <div>
           <div class="footer__brand">Grids2Bricks</div>
-          <p style="margin-top:10px;max-width:320px">Custom BrickHeadz from your photos. Designed with love, built brick by brick.</p>
+          <p style="margin-top:10px;max-width:320px">Custom BrickHeadz from your photos. Designed with love, built brick
+            by brick.</p>
           <div class="social" style="margin-top:12px">
             <a href="#" aria-label="Instagram"><i data-lucide="instagram"></i></a>
             <a href="#" aria-label="Twitter"><i data-lucide="twitter"></i></a>
@@ -300,45 +347,45 @@
 
   <script type="module">
     import { initNav, initReveal } from '../assets/js/nav.js';
-    document.addEventListener('DOMContentLoaded', () => { 
-      initNav(); 
-      initReveal(); 
+    document.addEventListener('DOMContentLoaded', () => {
+      initNav();
+      initReveal();
 
       // Carousel Logic
       const track = document.getElementById('heroCarouselTrack');
       const slides = document.querySelectorAll('.hero-carousel-slide');
       const prevBtn = document.querySelector('.hero-carousel-prev');
       const nextBtn = document.querySelector('.hero-carousel-next');
-      
-      if(track && slides.length > 0) {
+
+      if (track && slides.length > 0) {
         let currentIndex = 0;
         let slideInterval;
-        
+
         const updateCarousel = () => {
           track.style.transform = `translateX(-${currentIndex * 100}%)`;
         };
-        
+
         const nextSlide = () => {
           currentIndex = (currentIndex + 1) % slides.length;
           updateCarousel();
         };
-        
+
         const prevSlide = () => {
           currentIndex = (currentIndex - 1 + slides.length) % slides.length;
           updateCarousel();
         };
-        
+
         const startAutoSlide = () => {
           slideInterval = setInterval(nextSlide, 3000);
         };
-        
+
         const stopAutoSlide = () => {
           clearInterval(slideInterval);
         };
 
         nextBtn.addEventListener('click', () => { nextSlide(); stopAutoSlide(); startAutoSlide(); });
         prevBtn.addEventListener('click', () => { prevSlide(); stopAutoSlide(); startAutoSlide(); });
-        
+
         const container = document.getElementById('heroCarousel');
         container.addEventListener('mouseenter', stopAutoSlide);
         container.addEventListener('mouseleave', startAutoSlide);
@@ -349,4 +396,5 @@
     });
   </script>
 </body>
+
 </html>

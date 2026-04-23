@@ -229,4 +229,39 @@ window.initLdrViewer = function (ldrUrl) {
     camera.lookAt(savedTarget); controls.update(); renderer.render(scene, camera);
     newBtn.innerHTML = originalLabel; newBtn.style.opacity = '1'; newBtn.disabled = false;
   });
+
+  // ===== VIEW CYCLE ENGINE =====
+  const viewCycleBtn = document.getElementById('btn-view-cycle');
+  if (viewCycleBtn) {
+    const newViewBtn = viewCycleBtn.cloneNode(true);
+    viewCycleBtn.parentNode.replaceChild(newViewBtn, viewCycleBtn);
+    
+    let currentViewIndex = 0;
+    
+    newViewBtn.addEventListener('click', () => {
+      if (!loadedModelGroup) { alert('3D model is still loading. Please wait a moment.'); return; }
+      
+      const box = new THREE.Box3().setFromObject(loadedModelGroup);
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const fov = camera.fov * (Math.PI / 180);
+      const cz = Math.abs((maxDim / 2) / Math.tan(fov / 2));
+      const dist = cz * 1.5;
+      
+      const views = [
+        new THREE.Vector3(-dist * 0.8, maxDim / 2, dist * 0.8), // Left Corner
+        new THREE.Vector3(dist * 0.8, maxDim / 2, dist * 0.8), // Right Corner
+        new THREE.Vector3(0, maxDim / 2, -dist), // Back
+        new THREE.Vector3(0, dist * 1.2, 0), // Top
+        new THREE.Vector3(0, maxDim / 2, dist) // Front (default)
+      ];
+      
+      currentViewIndex = (currentViewIndex + 1) % views.length;
+      
+      controls.target.set(0, 0, 0);
+      camera.position.copy(views[currentViewIndex]);
+      camera.lookAt(0, 0, 0);
+      controls.update();
+    });
+  }
 };
