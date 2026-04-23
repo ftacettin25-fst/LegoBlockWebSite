@@ -2,6 +2,13 @@
 <html lang="en">
 
 <head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script type="importmap">
+    { "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }}
+  </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Grids2Bricks — Custom BrickHeadz from your photo</title>
@@ -239,9 +246,7 @@
         <h2>See it in 3D</h2>
       </div>
       <div class="card viewer-card reveal">
-        <div class="viewer-card__stage" id="hero-viewer">
-          <i data-lucide="box" style="width:48px;height:48px;color:var(--accent-deep);opacity:.6"></i>
-        </div>
+        <div class="viewer-card__stage" id="ldr-viewer" style="min-height: 400px; width: 100%;"></div>
       </div>
     </div>
   </section>
@@ -347,9 +352,12 @@
 
   <script type="module">
     import { initNav, initReveal } from '../assets/js/nav.js';
+    import '../assets/js/ldr-viewer.js';
+
     document.addEventListener('DOMContentLoaded', () => {
       initNav();
       initReveal();
+      if (window.initLdrViewer) window.initLdrViewer('/static/lionmessi.ldr');
 
       // Carousel Logic
       const track = document.getElementById('heroCarouselTrack');
