@@ -90,6 +90,22 @@ def serve_spa(path):
 
 
 # ────────────────────────────────────────────────────────────────────────────
+# API: COUNTER
+# ────────────────────────────────────────────────────────────────────────────
+
+@app.route("/api/counter", methods=["GET"])
+def get_model_counter():
+    count = 1250 # Baseline number
+    if _firebase_ready:
+        try:
+            from db import get_counter
+            count += get_counter()
+        except Exception as e:
+            print(f"[Counter] Error fetching: {e}")
+    return jsonify({"count": count})
+
+
+# ────────────────────────────────────────────────────────────────────────────
 # API: CREATE
 # ────────────────────────────────────────────────────────────────────────────
 
@@ -187,11 +203,13 @@ def create_brickheadz():
 
             if _firebase_ready:
                 try:
-                    from db import upload_blob_to_storage
+                    from db import upload_blob_to_storage, increment_counter
                     remote_ldr_path = f"jobs/{job_id}/{output_name}"
                     upload_blob_to_storage(output_path, remote_ldr_path)
                     ldr_url      = f"/api/ldr/{remote_ldr_path}"
                     download_url = f"/api/download/{remote_ldr_path}"
+                    # Increment counter in Firestore
+                    increment_counter()
                 except Exception as fb_err:
                     print(f"[Firebase] Upload warning: {fb_err}")
 

@@ -741,16 +741,17 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--r-pill);
-  background: var(--accent-soft);
-  color: var(--accent-deep);
-  border: 1px solid var(--hairline);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0;
   transition: background var(--t-fast), color var(--t-fast), transform var(--t-fast);
 }
 
 .social a:hover {
-  background: var(--accent-deep);
-  color: #fff;
+  background: var(--accent);
+  color: #0E0E10;
+  border-color: var(--accent);
   transform: translateY(-2px);
 }
 
