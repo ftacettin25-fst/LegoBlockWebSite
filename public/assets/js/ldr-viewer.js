@@ -66,9 +66,9 @@ window.initLdrViewer = function (ldrUrl) {
   }
   ldrawLoader.preloadMaterials('/static/ldraw/LDConfig.ldr').then(() => loadModel()).catch(() => loadModel());
 
-  // ===== PDF BUILD GUIDE ENGINE =====
+  // ===== PDF BUILD GUIDE ENGINE (create page only) =====
   const pdfBtn = document.getElementById('btn-pdf');
-  if (!pdfBtn) return;
+  if (pdfBtn) {
   const newBtn = pdfBtn.cloneNode(true);
   pdfBtn.parentNode.replaceChild(newBtn, pdfBtn);
 
@@ -369,45 +369,45 @@ window.initLdrViewer = function (ldrUrl) {
     camera.lookAt(savedTarget); controls.update(); renderer.render(scene, camera);
     newBtn.innerHTML = originalLabel; newBtn.style.opacity = '1'; newBtn.disabled = false;
   });
-};
+  } // end if (pdfBtn)
 
-// ===== VIEW CYCLE ENGINE =====
-// Supports both #btn-view-cycle (action bar) and any [data-view-cycle] inside the viewer el
-const viewCycleBtns = [
-  document.getElementById('btn-view-cycle'),
-  ...Array.from(viewerEl.querySelectorAll('[data-view-cycle]'))
-].filter(Boolean);
+  // ===== VIEW CYCLE ENGINE =====
+  // Supports both #btn-view-cycle (action bar) and any [data-view-cycle] inside the viewer el
+  const viewCycleBtns = [
+    document.getElementById('btn-view-cycle'),
+    ...Array.from(viewerEl.querySelectorAll('[data-view-cycle]'))
+  ].filter(Boolean);
 
-viewCycleBtns.forEach(btn => {
-  const freshBtn = btn.cloneNode(true);
-  btn.parentNode.replaceChild(freshBtn, btn);
+  viewCycleBtns.forEach(btn => {
+    const freshBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(freshBtn, btn);
 
-  let currentViewIndex = 0;
+    let currentViewIndex = 0;
 
-  freshBtn.addEventListener('click', () => {
-    if (!loadedModelGroup) return;
+    freshBtn.addEventListener('click', () => {
+      if (!loadedModelGroup) return;
 
-    const box = new THREE.Box3().setFromObject(loadedModelGroup);
-    const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const fov = camera.fov * (Math.PI / 180);
-    const cz = Math.abs((maxDim / 2) / Math.tan(fov / 2));
-    const d = cz * 1.5;
+      const box = new THREE.Box3().setFromObject(loadedModelGroup);
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const fov = camera.fov * (Math.PI / 180);
+      const cz = Math.abs((maxDim / 2) / Math.tan(fov / 2));
+      const d = cz * 1.5;
 
-    // All views look at world origin (= model center)
-    const views = [
-      new THREE.Vector3(0, 0, d),              // Front (default)
-      new THREE.Vector3(-d * 0.8, 0, d * 0.8), // Left corner
-      new THREE.Vector3(d * 0.8, 0, d * 0.8),  // Right corner
-      new THREE.Vector3(0, 0, -d),              // Back
-      new THREE.Vector3(0, d * 1.3, 0),         // Top
-    ];
+      // All views look at world origin (= model center)
+      const views = [
+        new THREE.Vector3(0, 0, d),              // Front (default)
+        new THREE.Vector3(-d * 0.8, 0, d * 0.8), // Left corner
+        new THREE.Vector3(d * 0.8, 0, d * 0.8),  // Right corner
+        new THREE.Vector3(0, 0, -d),              // Back
+        new THREE.Vector3(0, d * 1.3, 0),         // Top
+      ];
 
-    currentViewIndex = (currentViewIndex + 1) % views.length;
-    controls.target.set(0, 0, 0);
-    camera.position.copy(views[currentViewIndex]);
-    camera.lookAt(0, 0, 0);
-    controls.update();
+      currentViewIndex = (currentViewIndex + 1) % views.length;
+      controls.target.set(0, 0, 0);
+      camera.position.copy(views[currentViewIndex]);
+      camera.lookAt(0, 0, 0);
+      controls.update();
+    });
   });
-});
-
+};
