@@ -222,58 +222,115 @@
 }
 
 /* Team */
+/* Founders team layout */
 .team__grid--founders {
-  display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 24px;
-  align-items: center;
-  margin-top: 28px;
+  gap: 20px;
+  align-items: stretch;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 980px) {
   .team__grid--founders {
     grid-template-columns: 1fr 1fr;
   }
 }
 
+@media (max-width: 560px) {
+  .team__grid--founders {
+    grid-template-columns: 1fr;
+  }
+}
+
 .team-member--bio {
   text-align: left;
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  padding: 24px 22px;
+  /* <- this fixes the "too close to the left border" issue */
+  display: flex;
+  flex-direction: column;
 }
 
 .team-member--bio h4 {
-  margin-bottom: 4px;
+  margin: 0 0 2px;
+  font-size: 1.15rem;
 }
 
 .team-member__role {
   color: var(--accent-deep);
   font-weight: 700;
   font-size: .85rem;
-  margin: 0 0 8px;
-  text-transform: uppercase;
-  letter-spacing: .08em;
+  margin: 0 0 12px;
 }
 
 .team-member__bio {
   color: var(--fg-dim);
   font-size: .92rem;
   line-height: 1.55;
-  margin: 0;
+  margin: 0 0 16px;
+  flex: 1;
+}
+
+.team-member__socials {
+  display: flex;
+  gap: 10px;
+}
+
+.team-member__socials a {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.team-member__socials a:hover {
+  background: var(--accent-deep);
+  color: #fff;
+}
+
+.team-member__socials i {
+  width: 16px;
+  height: 16px;
 }
 
 .team-member--model {
-  aspect-ratio: 1 / 1;
-  border-radius: var(--r-md);
-  overflow: hidden;
-  border: 1px solid var(--hairline);
-  background: var(--bg-alt);
+  padding: 0;
 }
 
-.team-member--model img {
+.team-member__frame {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--r-lg);
+  background:
+    var(--stud-pattern),
+    linear-gradient(135deg, #FAF8FF, #EFEAFB);
+  background-size: 24px 24px, cover;
+  border: 1px solid var(--hairline);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.team-member__frame i {
+  width: 50%;
+  height: 50%;
+  color: var(--accent-deep);
+  opacity: .55;
+}
+
+.team-member__frame img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
+  border-radius: inherit;
 }
+
 
 /* FAQ */
 .faq {
@@ -849,18 +906,20 @@
   justify-content: center;
 }
 
-/* How-step illustration */
-.how-step__media {
+/* How-step illustrations */
+.how-step__art {
+  background: linear-gradient(160deg, #FAF8FF, #EFEAFB);
   border-radius: var(--r-md);
-  overflow: hidden;
   border: 1px solid var(--hairline);
-  margin-bottom: 16px;
-  background: #fff;
-  aspect-ratio: 200 / 130;
+  aspect-ratio: 16 / 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  overflow: hidden;
 }
 
-.how-step__media svg {
-  display: block;
-  width: 100%;
-  height: 100%;
+.how-step__art svg {
+  width: 70%;
+  height: 70%;
 }

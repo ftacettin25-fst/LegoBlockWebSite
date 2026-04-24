@@ -1,38 +1,45 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Orders & Cart — Grids2Bricks</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Mulish:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Mulish:wght@400;500;700;800&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="../assets/css/tokens-v2.css" />
   <link rel="stylesheet" href="../assets/css/base-v2.css" />
   <link rel="stylesheet" href="../assets/css/components-v2.css" />
   <link rel="stylesheet" href="../assets/css/pages-v2.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body>
   <header class="nav" id="nav">
     <div class="nav__inner">
       <a class="brand" href="index.html">Grids2Bricks</a>
       <nav class="nav__links">
+        <a href="index.html" data-nav-link>Home</a>
         <a href="create.html" data-nav-link>Create</a>
         <a href="order.html" data-nav-link>Order</a>
-        <a href="index.html#gallery" data-nav-link>Gallery</a>
       </nav>
       <div class="nav__icons">
-        <a class="icon-btn" href="order.html" aria-label="Cart"><i data-lucide="shopping-bag"></i><span class="cart-badge" data-cart-badge>0</span></a>
+        <a class="icon-btn" href="order.html" aria-label="Cart"><i data-lucide="shopping-bag"></i><span
+            class="cart-badge" data-cart-badge>0</span></a>
         <span id="account-slot"></span>
         <button class="icon-btn menu-toggle" id="menu-toggle" aria-label="Menu"><i data-lucide="menu"></i></button>
       </div>
     </div>
     <div class="mobile-drawer" id="mobile-drawer">
-      <a href="create.html">Create</a><a href="order.html">Order</a>
-      <a href="index.html#gallery">Gallery</a><a href="account.html">Account</a>
+      <a href="index.html">Home</a>
+      <a href="create.html">Create</a>
+      <a href="order.html">Order</a>
+      <a href="account.html">Account</a>
     </div>
   </header>
+
 
   <script type="module">
     import { initNav, initReveal } from '../assets/js/nav.js';
@@ -77,4 +84,5 @@
 
   <script type="module" src="../assets/js/order.js"></script>
 </body>
+
 </html>

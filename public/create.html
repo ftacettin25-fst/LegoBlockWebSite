@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -7,7 +8,8 @@
   <meta name="description" content="Upload a photo and build your custom BrickHeadz model in minutes." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Mulish:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Mulish:wght@400;500;700;800&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="../assets/css/tokens-v2.css" />
   <link rel="stylesheet" href="../assets/css/base-v2.css" />
   <link rel="stylesheet" href="../assets/css/components-v2.css" />
@@ -21,26 +23,31 @@
     }}
   </script>
 </head>
+
 <body>
   <header class="nav" id="nav">
     <div class="nav__inner">
       <a class="brand" href="index.html">Grids2Bricks</a>
       <nav class="nav__links">
+        <a href="index.html" data-nav-link>Home</a>
         <a href="create.html" data-nav-link>Create</a>
         <a href="order.html" data-nav-link>Order</a>
-        <a href="index.html#gallery" data-nav-link>Gallery</a>
       </nav>
       <div class="nav__icons">
-        <a class="icon-btn" href="order.html" aria-label="Cart"><i data-lucide="shopping-bag"></i><span class="cart-badge" data-cart-badge>0</span></a>
+        <a class="icon-btn" href="order.html" aria-label="Cart"><i data-lucide="shopping-bag"></i><span
+            class="cart-badge" data-cart-badge>0</span></a>
         <span id="account-slot"></span>
         <button class="icon-btn menu-toggle" id="menu-toggle" aria-label="Menu"><i data-lucide="menu"></i></button>
       </div>
     </div>
     <div class="mobile-drawer" id="mobile-drawer">
-      <a href="create.html">Create</a><a href="order.html">Order</a>
-      <a href="index.html#gallery">Gallery</a><a href="account.html">Account</a>
+      <a href="index.html">Home</a>
+      <a href="create.html">Create</a>
+      <a href="order.html">Order</a>
+      <a href="account.html">Account</a>
     </div>
   </header>
+
 
   <section>
     <div class="container">
@@ -77,10 +84,12 @@
         <div class="card reveal">
           <h3 style="margin-bottom:10px">Tips for best results</h3>
           <div class="tips">
-            <div class="tip"><i data-lucide="sun"></i><span>Use bright, even lighting — avoid harsh shadows.</span></div>
+            <div class="tip"><i data-lucide="sun"></i><span>Use bright, even lighting — avoid harsh shadows.</span>
+            </div>
             <div class="tip"><i data-lucide="user"></i><span>Front-facing portrait, full face visible.</span></div>
             <div class="tip"><i data-lucide="image"></i><span>High resolution, no heavy filters.</span></div>
-            <div class="tip"><i data-lucide="glasses"></i><span>Remove sunglasses or hats covering features.</span></div>
+            <div class="tip"><i data-lucide="glasses"></i><span>Remove sunglasses or hats covering features.</span>
+            </div>
           </div>
         </div>
       </div>
@@ -109,7 +118,9 @@
       <div class="overlay__title">Building your BrickHeadz</div>
       <div class="overlay__sub">Hang tight — this usually takes under a minute.</div>
       <div class="stages" id="stages"></div>
-      <div class="progress"><div class="progress__bar" id="progress-bar"></div></div>
+      <div class="progress">
+        <div class="progress__bar" id="progress-bar"></div>
+      </div>
     </div>
   </div>
 
@@ -120,6 +131,11 @@
   </footer>
 
   <script type="module" src="../assets/js/ldr-viewer.js"></script>
+  <script type="module">
+    import { initNav, initReveal } from '../assets/js/nav.js';
+    document.addEventListener('DOMContentLoaded', () => { initNav(); initReveal(); });
+  </script>
   <script type="module" src="../assets/js/create.js"></script>
 </body>
+
 </html>
