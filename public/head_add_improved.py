@@ -935,24 +935,31 @@ def save_merged_to_ldr(space_matrix, head_filename, output_filename, hair_data: 
         arms_posz  = 1.5 * STUD
         arms_posy  = -((arms_top - 1) * PLATE_H) if arms_top else 0
 
-        f_out.write(f"1 {15} {arms_posx} {arms_posy} {arms_posz} "
+        tshirt_color = hair_data.get('top_ldraw_code') if hair_data.get('top_ldraw_code') != '?' else 15
+
+        f_out.write(f"1 {tshirt_color} {arms_posx} {arms_posy} {arms_posz} "
                     f"0 0 1 0 1 0 -1 0 0 22885.dat\n")
-        f_out.write(f"1 {15} {3*STUD} {arms_posy} {arms_posz} "
+        f_out.write(f"1 {tshirt_color} {3*STUD} {arms_posy} {arms_posz} "
                     f"0 0 -1 0 1 0 1 0 0 22885.dat\n")
 
         armsplate_posx  = arms_posx - 18.0
-        armsplate_posy  = arms_posy + 20
-        f_out.write(f"1 {15} {armsplate_posx} {armsplate_posy} {arms_posz} "
+        armsplate_posy  = arms_posy + 20    
+        f_out.write(f"1 {tshirt_color} {armsplate_posx} {armsplate_posy} {arms_posz} "
                     f"0 1 0 -1 0 0 0 0 1 3022.dat\n")
-        f_out.write(f"1 {15} {3*STUD+18.0} {armsplate_posy} {arms_posz} "
+        f_out.write(f"1 {tshirt_color} {3*STUD+18.0} {armsplate_posy} {arms_posz} "
                     f"0 -1 0 1 0 0 0 0 1 3022.dat\n")
+        
+        f_out.write(f"1 {tshirt_color} {arms_posx-26.0} {arms_posy} {arms_posz} "
+                    f"0 1 0 0 0 -1 -1 0 0 3069b.dat\n")
+        f_out.write(f"1 {tshirt_color} {3*STUD+26.0} {arms_posy} {arms_posz} "
+                    f"0 -1 0 0 0 -1 1 0 0 3069b.dat\n")
 
         armsmod_posy  = arms_posy + 30
         sc = skin_color if skin_color is not None else 92
         f_out.write(f"1 {sc} {arms_posx-26.0} {armsmod_posy} {arms_posz} "
                     f"0 1 0 0 0 -1 -1 0 0 11476.dat\n")
         f_out.write(f"1 {sc} {3*STUD+26.0} {armsmod_posy} {arms_posz} "
-                    f"0 -1 -0.000001 0 0 -1 1 0 0 11476.dat\n")
+                    f"0 -1 0 0 0 -1 1 0 0 11476.dat\n")
 
         # Target body center and top
         max_gx = max((block[0] + block[3] - 1) for block in merged_blocks) if merged_blocks else 3
