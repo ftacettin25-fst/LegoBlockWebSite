@@ -10,6 +10,7 @@ import shutil
 import tempfile
 import traceback
 import threading
+from datetime import datetime
 
 from flask import Flask, request, jsonify, send_from_directory, Response
 
@@ -184,7 +185,8 @@ def create_brickheadz():
                 person_data.get("hair_type", "default"),
                 pl.HAIR_LDR_MAP["default"],
             )
-            output_name = f"brickheadz_{job_id[:8]}.ldr"
+            now_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            output_name = f"brickheadz_{now_str}_{job_id[:8]}.ldr"
             output_path = os.path.join(work_dir, output_name)
 
             pl.save_merged_to_ldr(

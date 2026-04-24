@@ -323,7 +323,7 @@
   color: #fff;
 }
 
-.team-member__socials i {
+.team-member__socials i, .team-member__socials svg {
   width: 16px;
   height: 16px;
 }
