@@ -949,9 +949,9 @@ def save_merged_to_ldr(space_matrix, head_filename, output_filename, hair_data: 
         f_out.write(f"1 {tshirt_color} {3*STUD+18.0} {armsplate_posy} {arms_posz} "
                     f"0 -1 0 1 0 0 0 0 1 3022.dat\n")
         
-        f_out.write(f"1 {tshirt_color} {arms_posx-26.0} {arms_posy} {arms_posz} "
+        f_out.write(f"1 {tshirt_color} {arms_posx-26.0} {arms_posy+10} {arms_posz} "
                     f"0 1 0 0 0 -1 -1 0 0 3069b.dat\n")
-        f_out.write(f"1 {tshirt_color} {3*STUD+26.0} {arms_posy} {arms_posz} "
+        f_out.write(f"1 {tshirt_color} {3*STUD+26.0} {arms_posy+10} {arms_posz} "
                     f"0 -1 0 0 0 -1 1 0 0 3069b.dat\n")
 
         armsmod_posy  = arms_posy + 30
