@@ -54,11 +54,11 @@ export function initNav() {
 }
 
 export function getCart() {
-  try { return JSON.parse(localStorage.getItem('g2b_cart') || '[]'); }
+  try { return JSON.parse(sessionStorage.getItem('g2b_cart') || '[]'); }
   catch { return []; }
 }
 export function setCart(items) {
-  localStorage.setItem('g2b_cart', JSON.stringify(items));
+  sessionStorage.setItem('g2b_cart', JSON.stringify(items));
   updateCartBadge();
 }
 export function updateCartBadge() {
