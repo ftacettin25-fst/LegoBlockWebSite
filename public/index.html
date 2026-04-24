@@ -95,9 +95,9 @@
     <div class="nav__inner">
       <a class="brand" href="index.html">Grids2Bricks</a>
       <nav class="nav__links">
+        <a href="index.html" data-nav-link>Home</a>
         <a href="create.html" data-nav-link>Create</a>
         <a href="order.html" data-nav-link>Order</a>
-        <a href="index.html#gallery" data-nav-link>Gallery</a>
       </nav>
       <div class="nav__icons">
         <a class="icon-btn" href="order.html" aria-label="Cart">
@@ -109,9 +109,9 @@
       </div>
     </div>
     <div class="mobile-drawer" id="mobile-drawer">
-      <a href="create.html">Create</a>
-      <a href="order.html">Order</a>
-      <a href="index.html#gallery">Gallery</a>
+      <a href="index.html" data-nav-link>Home</a>
+      <a href="create.html" data-nav-link>Create</a>
+      <a href="order.html" data-nav-link>Order</a>
       <a href="account.html">Account</a>
     </div>
   </header>
@@ -166,43 +166,42 @@
     </div>
   </section>
 
-  <!-- Featured -->
+  <!-- Gallery -->
   <section id="gallery" class="band-alt">
     <div class="container">
-      <div class="featured__head reveal">
-        <div>
-          <span class="eyebrow">Trending</span>
-          <h2>Shop the look</h2>
-        </div>
-        <a href="create.html" class="btn btn--ghost">Browse all <i data-lucide="arrow-right"></i></a>
+      <div class="center reveal">
+        <span class="eyebrow">Gallery</span>
+        <h2>Made by our community</h2>
       </div>
-      <div class="featured__grid">
-        <div class="card card--hover product-card reveal">
-          <div class="product-card__media"><i data-lucide="user-square-2"></i></div>
-          <div class="product-card__body">
-            <div class="product-card__title">Classic BrickHeadz</div>
-            <div class="product-card__price">$39</div>
+      <div class="gallery__grid">
+        <div class="gallery__item reveal">
+          <div class="gallery-comparison">
+            <img src="images/osimhen.png" alt="Osimhen Original" />
+            <img src="images/osimhen_brickheadz.png" alt="Osimhen BrickHeadz" />
           </div>
         </div>
-        <div class="card card--hover product-card reveal">
-          <div class="product-card__media"><i data-lucide="users"></i></div>
-          <div class="product-card__body">
-            <div class="product-card__title">Couple Edition</div>
-            <div class="product-card__price">$69</div>
+        <div class="gallery__item reveal">
+          <div class="gallery-comparison">
+            <img src="images/mrbeast.jpg" alt="MrBeast Original" />
+            <img src="images/mrbeast_brickheadz.png" alt="MrBeast BrickHeadz" />
           </div>
         </div>
-        <div class="card card--hover product-card reveal">
-          <div class="product-card__media"><i data-lucide="dog"></i></div>
-          <div class="product-card__body">
-            <div class="product-card__title">Pet Mini</div>
-            <div class="product-card__price">$29</div>
+        <div class="gallery__item reveal">
+          <div class="gallery-comparison">
+            <img src="images/speed.png" alt="Speed Original" />
+            <img src="images/speed_brickheadz.png" alt="Speed BrickHeadz" />
           </div>
         </div>
-        <div class="card card--hover product-card reveal">
-          <div class="product-card__media"><i data-lucide="party-popper"></i></div>
-          <div class="product-card__body">
-            <div class="product-card__title">Party Pack (4)</div>
-            <div class="product-card__price">$129</div>
+        <div class="gallery__item reveal">
+          <div class="gallery-comparison">
+            <img src="images/zendayaandtom.jpg" alt="Zendaya and Tom Original" />
+            <img src="images/zendayaandtom_brickheadz.png" alt="Zendaya and Tom BrickHeadz" />
+          </div>
+        </div>
+        <div class="gallery__item reveal">
+          <div class="gallery-comparison">
+            <img src="images/friends.jpg" alt="Friends Original" />
+            <img src="images/friends_brickheadz.png" alt="Friends BrickHeadz" />
           </div>
         </div>
       </div>
@@ -210,31 +209,105 @@
   </section>
 
   <!-- How it works -->
-  <section>
-    <div class="container">
-      <div class="center reveal">
-        <span class="eyebrow">How it works</span>
-        <h2>Three simple steps</h2>
+  <div class="how__grid">
+    <div class="how-step reveal">
+      <div class="how-step__media">
+        <svg viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#FAF8FF" />
+              <stop offset="1" stop-color="#EFEAFB" />
+            </linearGradient>
+          </defs>
+          <rect width="200" height="130" fill="url(#g1)" />
+          <!-- phone -->
+          <rect x="70" y="20" width="60" height="95" rx="8" fill="#fff" stroke="#C9BEE8" stroke-width="2" />
+          <rect x="76" y="28" width="48" height="62" rx="3" fill="#EFEAFB" />
+          <!-- portrait inside phone -->
+          <circle cx="100" cy="50" r="9" fill="#C9BEE8" />
+          <path d="M85 78 Q100 62 115 78 L115 88 L85 88 Z" fill="#C9BEE8" />
+          <!-- upload arrow -->
+          <path d="M100 100 L100 112 M94 106 L100 100 L106 106" stroke="#7C3AED" stroke-width="2.5" fill="none"
+            stroke-linecap="round" stroke-linejoin="round" />
+          <!-- studs -->
+          <circle cx="30" cy="30" r="3" fill="#C9BEE8" opacity=".6" />
+          <circle cx="170" cy="40" r="3" fill="#C9BEE8" opacity=".6" />
+          <circle cx="40" cy="100" r="3" fill="#C9BEE8" opacity=".6" />
+        </svg>
       </div>
-      <div class="how__grid">
-        <div class="how-step reveal">
-          <div class="how-step__num">1</div>
-          <h3>Upload your photo</h3>
-          <p>Pick a clear front-facing portrait. We handle the rest.</p>
-        </div>
-        <div class="how-step reveal">
-          <div class="how-step__num">2</div>
-          <h3>We build your model</h3>
-          <p>Our system designs a custom BrickHeadz tuned to your features.</p>
-        </div>
-        <div class="how-step reveal">
-          <div class="how-step__num">3</div>
-          <h3>Get your build guide</h3>
-          <p>Download the brick-by-brick PDF and the .ldr 3D file.</p>
-        </div>
-      </div>
+      <div class="how-step__num">1</div>
+      <h3>Upload your photo</h3>
+      <p>Pick a clear front-facing portrait. We handle the rest.</p>
     </div>
-  </section>
+
+    <div class="how-step reveal">
+      <div class="how-step__media">
+        <svg viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#FAF8FF" />
+              <stop offset="1" stop-color="#EFEAFB" />
+            </linearGradient>
+          </defs>
+          <rect width="200" height="130" fill="url(#g2)" />
+          <!-- brick stack body -->
+          <rect x="70" y="55" width="60" height="22" rx="3" fill="#7C3AED" />
+          <rect x="70" y="77" width="60" height="22" rx="3" fill="#A78BFA" />
+          <!-- studs on top brick -->
+          <circle cx="82" cy="52" r="4" fill="#7C3AED" />
+          <circle cx="100" cy="52" r="4" fill="#7C3AED" />
+          <circle cx="118" cy="52" r="4" fill="#7C3AED" />
+          <!-- head brick -->
+          <rect x="78" y="20" width="44" height="35" rx="3" fill="#FBBF24" />
+          <circle cx="90" cy="17" r="3" fill="#FBBF24" />
+          <circle cx="110" cy="17" r="3" fill="#FBBF24" />
+          <!-- face dots -->
+          <circle cx="91" cy="35" r="2.2" fill="#0E0E10" />
+          <circle cx="109" cy="35" r="2.2" fill="#0E0E10" />
+          <path d="M93 44 Q100 48 107 44" stroke="#0E0E10" stroke-width="1.6" fill="none" stroke-linecap="round" />
+          <!-- sparkles -->
+          <path d="M40 40 l3 0 M41.5 38.5 l0 3" stroke="#7C3AED" stroke-width="1.5" stroke-linecap="round" />
+          <path d="M165 70 l3 0 M166.5 68.5 l0 3" stroke="#7C3AED" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+      </div>
+      <div class="how-step__num">2</div>
+      <h3>We build your model</h3>
+      <p>Our system designs a custom BrickHeadz tuned to your features.</p>
+    </div>
+
+    <div class="how-step reveal">
+      <div class="how-step__media">
+        <svg viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#FAF8FF" />
+              <stop offset="1" stop-color="#EFEAFB" />
+            </linearGradient>
+          </defs>
+          <rect width="200" height="130" fill="url(#g3)" />
+          <!-- box body -->
+          <path d="M60 50 L100 35 L140 50 L140 100 L100 115 L60 100 Z" fill="#FBBF24" stroke="#0E0E10"
+            stroke-width="1.5" stroke-linejoin="round" />
+          <path d="M60 50 L100 65 L140 50" fill="none" stroke="#0E0E10" stroke-width="1.5" />
+          <path d="M100 65 L100 115" stroke="#0E0E10" stroke-width="1.5" />
+          <!-- tape -->
+          <rect x="92" y="35" width="16" height="65" fill="#7C3AED" opacity=".25" />
+          <!-- guide doc -->
+          <rect x="25" y="60" width="32" height="42" rx="2" fill="#fff" stroke="#C9BEE8" stroke-width="1.5" />
+          <line x1="30" y1="68" x2="52" y2="68" stroke="#C9BEE8" stroke-width="1.5" />
+          <line x1="30" y1="74" x2="48" y2="74" stroke="#C9BEE8" stroke-width="1.5" />
+          <line x1="30" y1="80" x2="50" y2="80" stroke="#C9BEE8" stroke-width="1.5" />
+          <!-- check badge -->
+          <circle cx="155" cy="40" r="11" fill="#7C3AED" />
+          <path d="M150 40 L154 44 L161 37" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </div>
+      <div class="how-step__num">3</div>
+      <h3>Get your build guide</h3>
+      <p>Download the brick-by-brick PDF and the .ldr 3D file.</p>
+    </div>
+  </div>
 
   <div class="divider-studs"></div>
 
@@ -252,36 +325,26 @@
   </section>
 
   <!-- Team -->
-  <section>
-    <div class="container">
-      <div class="center reveal">
-        <span class="eyebrow">Our team</span>
-        <h2>The makers behind the bricks</h2>
-      </div>
-      <div class="team__grid">
-        <div class="team-member reveal">
-          <div class="team-member__avatar"><i data-lucide="user"></i></div>
-          <h4>Alex</h4>
-          <p>Founder</p>
-        </div>
-        <div class="team-member reveal">
-          <div class="team-member__avatar"><i data-lucide="user"></i></div>
-          <h4>Jordan</h4>
-          <p>Engineer</p>
-        </div>
-        <div class="team-member reveal">
-          <div class="team-member__avatar"><i data-lucide="user"></i></div>
-          <h4>Sam</h4>
-          <p>Designer</p>
-        </div>
-        <div class="team-member reveal">
-          <div class="team-member__avatar"><i data-lucide="user"></i></div>
-          <h4>Riley</h4>
-          <p>Operations</p>
-        </div>
-      </div>
+  <div class="team__grid team__grid--founders">
+    <div class="team-member team-member--bio reveal">
+      <h4>Fikret</h4>
+      <p class="team-member__role">Co-founder</p>
+      <p class="team-member__bio">Short bio for Fikret goes here — what he does, background, the part of Grids2Bricks he
+        leads.</p>
     </div>
-  </section>
+    <div class="team-member team-member--model reveal">
+      <img src="/static/team/fikret-brick.png" alt="Fikret as a BrickHeadz" />
+    </div>
+    <div class="team-member team-member--model reveal">
+      <img src="/static/team/halil-brick.png" alt="Halil as a BrickHeadz" />
+    </div>
+    <div class="team-member team-member--bio reveal">
+      <h4>Halil</h4>
+      <p class="team-member__role">Co-founder</p>
+      <p class="team-member__bio">Short bio for Halil goes here — what he does, background, the part of Grids2Bricks he
+        leads.</p>
+    </div>
+  </div>
 
   <!-- FAQ -->
   <section id="faq" class="band-alt">
