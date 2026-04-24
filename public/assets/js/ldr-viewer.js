@@ -65,7 +65,7 @@ window.initLdrViewer = function (ldrUrl) {
       controls.update();
     });
   }
-  ldrawLoader.preloadMaterials('model_merged.ldr').then(() => loadModel()).catch(() => loadModel());
+  ldrawLoader.preloadMaterials('/static/ldraw/LDConfig.ldr').then(() => loadModel()).catch(() => loadModel());
 
   // ===== PDF BUILD GUIDE ENGINE (create page only) =====
   const pdfBtn = document.getElementById('btn-pdf');
