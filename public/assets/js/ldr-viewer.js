@@ -47,18 +47,19 @@ window.initLdrViewer = function (ldrUrl) {
   function loadModel() {
     ldrawLoader.load(ldrUrl, group => {
       loadedModelGroup = group;
+      // Rotate FIRST so bounding box is measured in final orientation
+      group.rotation.x = Math.PI;
       const box = new THREE.Box3().setFromObject(group);
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
-      // Shift model so its geometric center sits at world origin
+      // Shift so geometric center sits exactly at world origin
       group.position.set(-center.x, -center.y, -center.z);
-      group.rotation.x = Math.PI;
       scene.add(group);
       const maxDim = Math.max(size.x, size.y, size.z);
       const fov = camera.fov * (Math.PI / 180);
       const cz = Math.abs((maxDim / 2) / Math.tan(fov / 2));
-      // Camera looks at world origin (= model center after offset)
-      camera.position.set(0, 0, cz * 1.5);
+      // Pull back enough to see full model; slight positive Y so head isn't clipped
+      camera.position.set(0, maxDim * 0.08, cz * 2.0);
       camera.lookAt(0, 0, 0);
       controls.target.set(0, 0, 0);
       controls.update();
@@ -128,13 +129,31 @@ window.initLdrViewer = function (ldrUrl) {
 
     const savedCamPos = camera.position.clone();
     const savedTarget = controls.target.clone();
+
+    // --- Helper: render from a camera pos, crop center strip, return dataURL ---
+    const renderCropped = async (camPos, cropFrac = 0.55) => {
+      camera.position.copy(camPos); camera.lookAt(0, 0, 0);
+      controls.target.set(0, 0, 0); controls.update();
+      renderer.render(scene, camera);
+      await delay(20);
+      const raw = renderer.domElement;
+      const srcW = raw.width, srcH = raw.height;
+      const cropW = Math.floor(srcW * cropFrac);
+      const cropX = Math.floor((srcW - cropW) / 2);
+      const cv = document.createElement('canvas');
+      cv.width = cropW; cv.height = srcH;
+      cv.getContext('2d').drawImage(raw, cropX, 0, cropW, srcH, 0, 0, cropW, srcH);
+      return cv.toDataURL('image/jpeg', 0.88);
+    };
+
+    // Camera positions for the two PDF views
     const pdfBox = new THREE.Box3().setFromObject(loadedModelGroup);
     const pdfSize = pdfBox.getSize(new THREE.Vector3());
     const pdfMaxDim = Math.max(pdfSize.x, pdfSize.y, pdfSize.z);
     const pdfFov = camera.fov * (Math.PI / 180);
-    const pdfDist = Math.abs((pdfMaxDim / 2) / Math.tan(pdfFov / 2)) * 1.8;
-    const pdfCamPos = new THREE.Vector3(-pdfDist * 0.7, pdfDist * 0.6, pdfDist);
-    controls.target.set(0, 0, 0); camera.position.copy(pdfCamPos); camera.lookAt(0, 0, 0); controls.update();
+    const pdfD = Math.abs((pdfMaxDim / 2) / Math.tan(pdfFov / 2)) * 2.0;
+    const camLeft  = new THREE.Vector3(-pdfD * 0.7, pdfMaxDim * 0.4, pdfD * 0.7);
+    const camRight = new THREE.Vector3( pdfD * 0.7, pdfMaxDim * 0.4, pdfD * 0.7);
 
     loadedModelGroup.traverse(obj => { obj.visible = false; });
     loadedModelGroup.visible = true;
@@ -144,23 +163,46 @@ window.initLdrViewer = function (ldrUrl) {
     const pdfW = pdf.internal.pageSize.getWidth();
     const pdfH = pdf.internal.pageSize.getHeight();
 
-    // ---- v2 theme palette (matches tokens-v2.css) ----
+    // ---- v2 theme palette ----
     const C = {
-      bg: [255, 255, 255], // --bg
-      bgAlt: [247, 247, 249], // --bg-alt
-      panel: [252, 251, 255], // soft panel
-      panelEdge: [232, 232, 238], // --hairline
-      navBg: [14, 14, 16],    // --nav-bg
-      fg: [17, 17, 20],    // --fg
-      fgDim: [90, 90, 102],   // --fg-dim
-      accent: [183, 166, 232], // --accent
-      accentDeep: [110, 85, 194],  // --accent-deep
-      accentSoft: [239, 234, 251], // --accent-soft
-      white: [255, 255, 255],
+      bg:[255,255,255], bgAlt:[247,247,249], panel:[252,251,255],
+      panelEdge:[232,232,238], fg:[17,17,20], fgDim:[90,90,102],
+      accentDeep:[110,85,194], accentSoft:[239,234,251], white:[255,255,255],
     };
-    const setFill = c => pdf.setFillColor(c[0], c[1], c[2]);
-    const setText = c => pdf.setTextColor(c[0], c[1], c[2]);
-    const setDraw = c => pdf.setDrawColor(c[0], c[1], c[2]);
+    const setFill = c => pdf.setFillColor(c[0],c[1],c[2]);
+    const setText = c => pdf.setTextColor(c[0],c[1],c[2]);
+    const setDraw = c => pdf.setDrawColor(c[0],c[1],c[2]);
+
+    // ===== START COVER =====
+    setFill(C.accentDeep); pdf.rect(0, 0, pdfW, pdfH, 'F');
+    // Decorative diagonal band
+    setFill(C.accentSoft);
+    pdf.triangle(0, pdfH * 0.45, pdfW * 0.6, pdfH, 0, pdfH, 'F');
+    // Brand
+    pdf.setFont('helvetica', 'bold'); pdf.setFontSize(36);
+    setText(C.white);
+    pdf.text('Grids2Bricks', pdfW / 2, pdfH * 0.35, { align: 'center' });
+    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(16);
+    setText(C.accentSoft);
+    pdf.text('BrickHeadz Build Guide', pdfW / 2, pdfH * 0.35 + 14, { align: 'center' });
+    // Date
+    pdf.setFontSize(9); setText(C.accentSoft);
+    pdf.text(new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}), pdfW / 2, pdfH * 0.35 + 26, { align: 'center' });
+    // Steps count pill
+    const totalBricks = partLines.length;
+    setFill(C.white);
+    pdf.roundedRect(pdfW/2 - 50, pdfH * 0.65, 100, 14, 7, 7, 'F');
+    pdf.setFont('helvetica', 'bold'); pdf.setFontSize(10);
+    setText(C.accentDeep);
+    pdf.text(`${buildSteps.length} build steps  ·  ${totalBricks} bricks`, pdfW/2, pdfH * 0.65 + 9.5, { align: 'center' });
+    // Footer
+    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8);
+    setText(C.accentSoft);
+    pdf.text('grids2bricks.com', pdfW / 2, pdfH - 10, { align: 'center' });
+
+    // ===== BUILD STEPS =====
+    const margin = 10, gap = 6, panelW = 66;
+    const contentTop = 33, contentH = pdfH - contentTop - 12;
 
     for (let stepIdx = 0; stepIdx < buildSteps.length; stepIdx++) {
       newBtn.textContent = `Step ${stepIdx + 1} / ${buildSteps.length}`;
@@ -185,183 +227,105 @@ window.initLdrViewer = function (ldrUrl) {
         });
       });
 
-      camera.position.copy(pdfCamPos); camera.lookAt(0, 0, 0);
-      controls.target.set(0, 0, 0); controls.update();
-      renderer.render(scene, camera);
-      await delay(20);
-      const imgData = renderer.domElement.toDataURL('image/jpeg', 0.85);
+      const imgLeft  = await renderCropped(camLeft,  0.55);
+      const imgRight = await renderCropped(camRight, 0.55);
 
-      if (stepIdx > 0) pdf.addPage();
+      pdf.addPage();
 
-      // ===== Page background =====
-      setFill(C.bg); pdf.rect(0, 0, pdfW, pdfH, 'F');
-
-      // Soft top accent strip
-      setFill(C.accentSoft);
-      pdf.rect(0, 0, pdfW, 28, 'F');
-
-      // ===== Header =====
-      // Brand wordmark
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(13);
-      setText(C.accentDeep);
-      pdf.text('Grids2Bricks', 12, 13);
-
-      pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(8);
-      setText(C.fgDim);
-      pdf.text('Build Guide', 12, 18.5);
-
-      // Step pill (top-right)
+      // Header strip
+      setFill(C.accentSoft); pdf.rect(0, 0, pdfW, 28, 'F');
+      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(13);
+      setText(C.accentDeep); pdf.text('Grids2Bricks', 12, 13);
+      pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8);
+      setText(C.fgDim); pdf.text('Build Guide', 12, 19);
+      // Step pill
       const pillW = 44, pillH = 12, pillX = pdfW - pillW - 12, pillY = 8;
-      setFill(C.accentDeep);
-      pdf.roundedRect(pillX, pillY, pillW, pillH, 6, 6, 'F');
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(10);
+      setFill(C.accentDeep); pdf.roundedRect(pillX, pillY, pillW, pillH, 6, 6, 'F');
+      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(10);
       setText(C.white);
-      pdf.text(
-        `STEP ${stepIdx + 1} / ${buildSteps.length}`,
-        pillX + pillW / 2,
-        pillY + 8,
-        { align: 'center' }
-      );
+      pdf.text(`STEP ${stepIdx + 1} / ${buildSteps.length}`, pillX + pillW / 2, pillY + 8, { align: 'center' });
+      // Progress bar
+      const barX = 58, barY = 14, barW = pillX - barX - 8, barH = 3;
+      setFill([220, 215, 235]); pdf.roundedRect(barX, barY, barW, barH, 1.5, 1.5, 'F');
+      setFill(C.accentDeep); pdf.roundedRect(barX, barY, barW * ((stepIdx + 1) / buildSteps.length), barH, 1.5, 1.5, 'F');
+      setDraw(C.panelEdge); pdf.setLineWidth(0.2); pdf.line(10, 30, pdfW - 10, 30);
 
-      // Progress bar (centered between brand and pill)
-      const barX = 60, barY = 14, barW = pillX - barX - 8, barH = 3;
-      setFill([220, 215, 235]);
-      pdf.roundedRect(barX, barY, barW, barH, 1.5, 1.5, 'F');
-      setFill(C.accentDeep);
-      pdf.roundedRect(barX, barY, barW * ((stepIdx + 1) / buildSteps.length), barH, 1.5, 1.5, 'F');
+      // Two image cards side by side
+      const imgAreaW = pdfW - margin * 2 - panelW - gap;
+      const halfW = (imgAreaW - gap) / 2;
+      const imgH2 = contentH;
 
-      // Hairline under header
-      setDraw(C.panelEdge); pdf.setLineWidth(0.2);
-      pdf.line(10, 30, pdfW - 10, 30);
-
-      // ===== Layout geometry =====
-      const margin = 10;
-      const gap = 8;
-      const panelW = 70;
-      const contentTop = 36;
-      const contentBottom = pdfH - 14;
-      const contentH = contentBottom - contentTop;
-
-      const imgX = margin;
-      const imgY = contentTop;
-      const imgW = pdfW - margin * 2 - panelW - gap;
-      const imgH = contentH;
-
-      // Image card (white with soft border + shadow strip)
       setFill(C.bgAlt);
-      pdf.roundedRect(imgX, imgY, imgW, imgH, 4, 4, 'F');
-      setDraw(C.panelEdge); pdf.setLineWidth(0.3);
-      pdf.roundedRect(imgX, imgY, imgW, imgH, 4, 4, 'S');
-      // Inset image with padding
-      const pad = 4;
-      pdf.addImage(imgData, 'JPEG', imgX + pad, imgY + pad, imgW - pad * 2, imgH - pad * 2);
+      pdf.roundedRect(margin, contentTop, halfW, imgH2, 3, 3, 'F');
+      pdf.roundedRect(margin + halfW + gap, contentTop, halfW, imgH2, 3, 3, 'F');
+      const pad = 2;
+      pdf.addImage(imgLeft,  'JPEG', margin + pad, contentTop + pad, halfW - pad*2, imgH2 - pad*2);
+      pdf.addImage(imgRight, 'JPEG', margin + halfW + gap + pad, contentTop + pad, halfW - pad*2, imgH2 - pad*2);
+      // View labels
+      pdf.setFont('helvetica', 'normal'); pdf.setFontSize(6.5);
+      setText(C.fgDim);
+      pdf.text('Left corner', margin + halfW / 2, contentTop + imgH2 - 1, { align: 'center' });
+      pdf.text('Right corner', margin + halfW + gap + halfW / 2, contentTop + imgH2 - 1, { align: 'center' });
 
-      // ===== Right panel =====
+      // Right panel
       const panelX = pdfW - margin - panelW;
-      const panelY = contentTop;
-      const panelH = contentH;
-
-      setFill(C.panel);
-      pdf.roundedRect(panelX, panelY, panelW, panelH, 4, 4, 'F');
-      setDraw(C.panelEdge); pdf.setLineWidth(0.3);
-      pdf.roundedRect(panelX, panelY, panelW, panelH, 4, 4, 'S');
-
-      // Panel header band
-      setFill(C.accentSoft);
-      pdf.roundedRect(panelX, panelY, panelW, 11, 4, 4, 'F');
-      // Mask the bottom corners of the band so it looks like a top strip
-      setFill(C.accentSoft);
-      pdf.rect(panelX, panelY + 6, panelW, 5, 'F');
-
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(8.5);
+      setFill(C.panel); pdf.roundedRect(panelX, contentTop, panelW, contentH, 4, 4, 'F');
+      setDraw(C.panelEdge); pdf.setLineWidth(0.3); pdf.roundedRect(panelX, contentTop, panelW, contentH, 4, 4, 'S');
+      setFill(C.accentSoft); pdf.roundedRect(panelX, contentTop, panelW, 11, 4, 4, 'F');
+      setFill(C.accentSoft); pdf.rect(panelX, contentTop + 6, panelW, 5, 'F');
+      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(7.5);
       setText(C.accentDeep);
-      pdf.text('PARTS FOR THIS STEP', panelX + panelW / 2, panelY + 7.2, { align: 'center' });
+      pdf.text('PARTS', panelX + panelW / 2, contentTop + 7.5, { align: 'center' });
 
-      // ===== Parts list =====
+      // Parts list
       const partEntries = Object.values(newParts);
-      const rowH = 11;
-      const listTop = panelY + 16;
-      const listBottom = panelY + panelH - 14;
+      const rowH = 11, listTop = contentTop + 15, listBottom = contentTop + contentH - 13;
       let partY = listTop;
-
       partEntries.forEach((part, i) => {
         if (partY + rowH > listBottom) return;
-
-        // Zebra row
-        if (i % 2 === 0) {
-          setFill(C.bgAlt);
-          pdf.roundedRect(panelX + 3, partY - 1, panelW - 6, rowH - 1, 1.5, 1.5, 'F');
-        }
-
-        // Color swatch
+        if (i % 2 === 0) { setFill(C.bgAlt); pdf.roundedRect(panelX + 3, partY - 1, panelW - 6, rowH - 1, 1.5, 1.5, 'F'); }
         const hex = part.colorHex;
-        const r = parseInt(hex.slice(1, 3), 16) || 0;
-        const g = parseInt(hex.slice(3, 5), 16) || 0;
-        const b = parseInt(hex.slice(5, 7), 16) || 0;
-        pdf.setFillColor(r, g, b);
-        pdf.roundedRect(panelX + 5, partY + 1, 6, 6, 1.2, 1.2, 'F');
-        setDraw(C.panelEdge); pdf.setLineWidth(0.2);
-        pdf.roundedRect(panelX + 5, partY + 1, 6, 6, 1.2, 1.2, 'S');
-
-        // Part name
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(7.5);
-        setText(C.fg);
-        const pname = part.partName.length > 18 ? part.partName.slice(0, 17) + '…' : part.partName;
-        pdf.text(pname, panelX + 14, partY + 4);
-
-        // Color name
-        pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(6.2);
-        setText(C.fgDim);
+        const r = parseInt(hex.slice(1,3),16)||0, g = parseInt(hex.slice(3,5),16)||0, b = parseInt(hex.slice(5,7),16)||0;
+        pdf.setFillColor(r,g,b); pdf.roundedRect(panelX + 5, partY + 1, 6, 6, 1.2, 1.2, 'F');
+        setDraw(C.panelEdge); pdf.setLineWidth(0.2); pdf.roundedRect(panelX + 5, partY + 1, 6, 6, 1.2, 1.2, 'S');
+        pdf.setFont('helvetica','bold'); pdf.setFontSize(7); setText(C.fg);
+        pdf.text(part.partName.length > 17 ? part.partName.slice(0,16)+'…' : part.partName, panelX + 14, partY + 4);
+        pdf.setFont('helvetica','normal'); pdf.setFontSize(6); setText(C.fgDim);
         pdf.text(part.colorName, panelX + 14, partY + 8);
-
-        // Quantity badge (right-aligned)
-        const qtyText = '×' + part.count;
-        const badgeW = 11, badgeH = 6.5;
-        const badgeX = panelX + panelW - badgeW - 5;
-        const badgeY = partY + 1.5;
-        setFill(C.accentDeep);
-        pdf.roundedRect(badgeX, badgeY, badgeW, badgeH, 2, 2, 'F');
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(7.5);
-        setText(C.white);
-        pdf.text(qtyText, badgeX + badgeW / 2, badgeY + 4.7, { align: 'center' });
-
+        const bW=10,bH=6,bX=panelX+panelW-bW-4,bY=partY+2;
+        setFill(C.accentDeep); pdf.roundedRect(bX,bY,bW,bH,2,2,'F');
+        pdf.setFont('helvetica','bold'); pdf.setFontSize(7); setText(C.white);
+        pdf.text('×'+part.count, bX+bW/2, bY+4.5, {align:'center'});
         partY += rowH;
       });
+      // Panel total
+      const totalNew = partEntries.reduce((s,p)=>s+p.count,0);
+      const footY = contentTop + contentH - 10;
+      setFill(C.accentDeep); pdf.roundedRect(panelX+4,footY,panelW-8,8,2,2,'F');
+      pdf.setFont('helvetica','bold'); pdf.setFontSize(7.5); setText(C.white);
+      pdf.text(`${totalNew} brick${totalNew!==1?'s':''} added`, panelX+panelW/2, footY+5.2, {align:'center'});
 
-      // ===== Panel footer total =====
-      const totalNew = partEntries.reduce((s, p) => s + p.count, 0);
-      const footY = panelY + panelH - 11;
-      setFill(C.accentDeep);
-      pdf.roundedRect(panelX + 4, footY, panelW - 8, 8, 2, 2, 'F');
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(8);
-      setText(C.white);
-      pdf.text(
-        `${totalNew} brick${totalNew !== 1 ? 's' : ''} added this step`,
-        panelX + panelW / 2,
-        footY + 5.4,
-        { align: 'center' }
-      );
-
-      // ===== Page footer =====
-      pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(7);
-      setText(C.fgDim);
-      pdf.text('grids2bricks.com', margin, pdfH - 6);
-      pdf.text(
-        `Page ${stepIdx + 1} of ${buildSteps.length}`,
-        pdfW - margin,
-        pdfH - 6,
-        { align: 'right' }
-      );
+      // Footer
+      pdf.setFont('helvetica','normal'); pdf.setFontSize(6.5); setText(C.fgDim);
+      pdf.text('grids2bricks.com', margin, pdfH - 5);
+      pdf.text(`Page ${stepIdx + 2} of ${buildSteps.length + 2}`, pdfW - margin, pdfH - 5, { align: 'right' });
     }
+
+    // ===== END COVER =====
+    pdf.addPage();
+    setFill(C.accentDeep); pdf.rect(0, 0, pdfW, pdfH, 'F');
+    setFill(C.accentSoft);
+    pdf.triangle(pdfW, 0, pdfW, pdfH * 0.55, pdfW * 0.4, 0, 'F');
+    pdf.setFont('helvetica', 'bold'); pdf.setFontSize(28);
+    setText(C.white); pdf.text('Your build is ready!', pdfW / 2, pdfH * 0.38, { align: 'center' });
+    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(12);
+    setText(C.accentSoft);
+    pdf.text('Happy building — one brick at a time.', pdfW / 2, pdfH * 0.38 + 16, { align: 'center' });
+    setFill(C.white); pdf.roundedRect(pdfW/2 - 48, pdfH*0.62, 96, 13, 6, 6, 'F');
+    pdf.setFont('helvetica','bold'); pdf.setFontSize(11); setText(C.accentDeep);
+    pdf.text('grids2bricks.com', pdfW/2, pdfH*0.62+9.3, {align:'center'});
+    pdf.setFont('helvetica','normal'); pdf.setFontSize(8); setText(C.accentSoft);
+    pdf.text(`${buildSteps.length} steps  ·  ${partLines.length} bricks total`, pdfW/2, pdfH*0.80, {align:'center'});
 
     pdf.save('Grids2Bricks_Build_Guide.pdf');
     loadedModelGroup.traverse(obj => { obj.visible = true; });
@@ -371,8 +335,8 @@ window.initLdrViewer = function (ldrUrl) {
   });
   } // end if (pdfBtn)
 
+
   // ===== VIEW CYCLE ENGINE =====
-  // Supports both #btn-view-cycle (action bar) and any [data-view-cycle] inside the viewer el
   const viewCycleBtns = [
     document.getElementById('btn-view-cycle'),
     ...Array.from(viewerEl.querySelectorAll('[data-view-cycle]'))
@@ -381,28 +345,21 @@ window.initLdrViewer = function (ldrUrl) {
   viewCycleBtns.forEach(btn => {
     const freshBtn = btn.cloneNode(true);
     btn.parentNode.replaceChild(freshBtn, btn);
-
-    let currentViewIndex = 0;
+    // Start at 2 so first click wraps to 0 (Front)
+    let currentViewIndex = 2;
 
     freshBtn.addEventListener('click', () => {
       if (!loadedModelGroup) return;
-
       const box = new THREE.Box3().setFromObject(loadedModelGroup);
       const size = box.getSize(new THREE.Vector3());
       const maxDim = Math.max(size.x, size.y, size.z);
       const fov = camera.fov * (Math.PI / 180);
-      const cz = Math.abs((maxDim / 2) / Math.tan(fov / 2));
-      const d = cz * 1.5;
-
-      // All views look at world origin (= model center)
+      const d = Math.abs((maxDim / 2) / Math.tan(fov / 2)) * 2.0;
       const views = [
-        new THREE.Vector3(0, 0, d),              // Front (default)
-        new THREE.Vector3(-d * 0.8, 0, d * 0.8), // Left corner
-        new THREE.Vector3(d * 0.8, 0, d * 0.8),  // Right corner
-        new THREE.Vector3(0, 0, -d),              // Back
-        new THREE.Vector3(0, d * 1.3, 0),         // Top
+        new THREE.Vector3(0, maxDim * 0.08, d),              // Front
+        new THREE.Vector3(-d * 0.7, maxDim * 0.4, d * 0.7), // Left-top corner
+        new THREE.Vector3(d * 0.7, maxDim * 0.4, d * 0.7),  // Right-top corner
       ];
-
       currentViewIndex = (currentViewIndex + 1) % views.length;
       controls.target.set(0, 0, 0);
       camera.position.copy(views[currentViewIndex]);
