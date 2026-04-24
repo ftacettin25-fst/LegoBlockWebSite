@@ -249,6 +249,35 @@
   color: var(--fg-dim);
 }
 
+/* Floating orbit / view-cycle button inside viewer */
+.viewer-orbit-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(15, 15, 23, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--t-fast), transform 0.4s ease;
+  z-index: 10;
+}
+
+.viewer-orbit-btn:hover {
+  background: var(--accent);
+}
+
+.viewer-orbit-btn:active {
+  transform: rotate(90deg);
+}
+
 /* Team */
 /* Founders team layout */
 .team__grid--founders {

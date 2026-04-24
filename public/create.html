@@ -98,13 +98,17 @@
       <div id="result" class="result result--wide card reveal" style="margin-top:24px">
         <h3 style="margin-bottom:10px">Your BrickHeadz</h3>
         <div id="chips" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"></div>
-        <div id="ldr-viewer" class="result__viewer result__viewer--tall">
-          <i data-lucide="box" style="width:48px;height:48px;color:var(--accent-deep);opacity:.6"></i>
+        <div style="position:relative;">
+          <div id="ldr-viewer" class="result__viewer result__viewer--tall">
+            <i data-lucide="box" style="width:48px;height:48px;color:var(--accent-deep);opacity:.6"></i>
+          </div>
+          <button data-view-cycle aria-label="Cycle camera view" class="viewer-orbit-btn" title="Change view">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          </button>
         </div>
         <div class="result__actions" style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
           <a class="btn btn--primary" id="download-link" href="#"><i data-lucide="download"></i> Download .ldr</a>
           <button class="btn btn--secondary" id="btn-pdf"><i data-lucide="file-text"></i> PDF build guide</button>
-          <button class="btn btn--secondary" id="btn-view-cycle"><i data-lucide="camera"></i> Change View</button>
           <button class="btn btn--accent" id="cart-btn"><i data-lucide="shopping-bag"></i> Add to cart</button>
           <button class="btn btn--ghost" id="reset-btn"><i data-lucide="refresh-cw"></i> Start over</button>
         </div>
