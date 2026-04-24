@@ -124,6 +124,11 @@ async function build() {
     }
     lastResult = data;
     showResult(data);
+    
+    // Show review modal after a short delay
+    setTimeout(() => {
+      if (window.showReviewModal) window.showReviewModal(data.job_id);
+    }, 1500);
   } catch (e) {
     clearInterval(timer);
     overlay.classList.remove('active');
@@ -214,3 +219,70 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#reset-btn').addEventListener('click', reset);
   $('#cart-btn').addEventListener('click', addToCart);
 });
+
+// Review Modal Logic
+let currentReviewRating = 5;
+window.showReviewModal = function(jobId) {
+  const modal = $('#review-modal');
+  if (!modal) return;
+  modal.dataset.jobId = jobId;
+  modal.classList.add('active');
+  
+  const stars = document.querySelectorAll('.star-rating-icon');
+  const updateStars = (r) => {
+    stars.forEach((s, idx) => {
+      if (idx < r) {
+        s.setAttribute('fill', '#FFD23F');
+        s.setAttribute('stroke', '#FFD23F');
+      } else {
+        s.setAttribute('fill', 'none');
+        s.setAttribute('stroke', '#FFD23F');
+      }
+    });
+  };
+  updateStars(currentReviewRating);
+  
+  stars.forEach(star => {
+    star.addEventListener('click', (e) => {
+      currentReviewRating = parseInt(e.currentTarget.dataset.rating);
+      updateStars(currentReviewRating);
+    });
+  });
+  
+  $('#review-submit-btn').onclick = async () => {
+    const name = $('#review-name').value.trim() || 'Anonymous';
+    const comment = $('#review-comment').value.trim();
+    if (!comment) {
+      toast('Please write a short comment', 'error');
+      return;
+    }
+    
+    const btn = $('#review-submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+    
+    try {
+      const resp = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_name: name, rating: currentReviewRating, comment, job_id: jobId })
+      });
+      if (resp.ok) {
+        toast('Review submitted! Thank you.', 'ok');
+        modal.classList.remove('active');
+      } else {
+        toast('Failed to submit review.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Submit Review';
+      }
+    } catch(err) {
+      toast('Error submitting review.', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Submit Review';
+    }
+  };
+  
+  $('#review-skip-btn').onclick = () => {
+    modal.classList.remove('active');
+  };
+};

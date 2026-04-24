@@ -95,7 +95,7 @@ def serve_spa(path):
 
 @app.route("/api/counter", methods=["GET"])
 def get_model_counter():
-    count = 1250 # Baseline number
+    count = 0 # Baseline number
     if _firebase_ready:
         try:
             from db import get_counter

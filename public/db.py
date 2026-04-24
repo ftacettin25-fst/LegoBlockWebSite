@@ -74,3 +74,74 @@ def increment_counter() -> int:
     except Exception as e:
         print(f"[Firebase] increment_counter error: {e}")
         return 0
+
+def add_review(user_name: str, rating: int, comment: str, job_id: str = None) -> bool:
+    """Save a review and update global stats."""
+    if not _initialized:
+        return False
+    try:
+        db = firestore.client()
+        
+        # Add the review document
+        review_doc = {
+            "user_name": user_name,
+            "rating": max(1, min(5, rating)), # clamp between 1 and 5
+            "comment": comment,
+            "job_id": job_id,
+            "created_at": firestore.SERVER_TIMESTAMP
+        }
+        db.collection("reviews").add(review_doc)
+        
+        # Update aggregate stats
+        stats_ref = db.collection("stats").document("reviews")
+        
+        @firestore.transactional
+        def update_in_transaction(transaction, ref):
+            snapshot = ref.get(transaction=transaction)
+            if not snapshot.exists:
+                new_total = 1
+                new_sum = rating
+            else:
+                data = snapshot.to_dict()
+                new_total = data.get("total_reviews", 0) + 1
+                new_sum = data.get("sum_ratings", 0) + rating
+                
+            transaction.set(ref, {
+                "total_reviews": new_total,
+                "sum_ratings": new_sum,
+                "average_rating": new_sum / new_total
+            })
+
+        transaction = db.transaction()
+        update_in_transaction(transaction, stats_ref)
+        
+        return True
+    except Exception as e:
+        print(f"[Firebase] add_review error: {e}")
+        return False
+
+def get_reviews(limit: int = 10) -> dict:
+    """Fetch global stats and a list of recent reviews."""
+    if not _initialized:
+        return {"stats": {"total_reviews": 0, "average_rating": 0.0}, "reviews": []}
+    try:
+        db = firestore.client()
+        
+        # Get stats
+        stats_doc = db.collection("stats").document("reviews").get()
+        stats = stats_doc.to_dict() if stats_doc.exists else {"total_reviews": 0, "average_rating": 0.0}
+        
+        # Get recent reviews
+        reviews_query = db.collection("reviews").order_by("created_at", direction=firestore.Query.DESCENDING).limit(limit)
+        reviews = []
+        for doc in reviews_query.stream():
+            data = doc.to_dict()
+            # remove created_at timestamp to avoid json serialization issues
+            if "created_at" in data:
+                del data["created_at"]
+            reviews.append(data)
+            
+        return {"stats": stats, "reviews": reviews}
+    except Exception as e:
+        print(f"[Firebase] get_reviews error: {e}")
+        return {"stats": {"total_reviews": 0, "average_rating": 0.0}, "reviews": []}

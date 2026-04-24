@@ -131,46 +131,40 @@
           </div>
           <div class="social-proof reveal" style="animation-delay: 0.2s;">
             <div class="stars">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#FFD23F"
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                 stroke="#FFD23F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                 class="lucide lucide-star">
                 <polygon
                   points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
               </svg>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#FFD23F"
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                 stroke="#FFD23F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                 class="lucide lucide-star">
                 <polygon
                   points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
               </svg>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#FFD23F"
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                 stroke="#FFD23F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                 class="lucide lucide-star">
                 <polygon
                   points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
               </svg>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#FFD23F"
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                 stroke="#FFD23F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                 class="lucide lucide-star">
                 <polygon
                   points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
               </svg>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="url(#half_grad)"
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                 stroke="#FFD23F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                 class="lucide lucide-star">
-                <defs>
-                  <linearGradient id="half_grad">
-                    <stop offset="50%" stop-color="#FFD23F" />
-                    <stop offset="50%" stop-color="transparent" stop-opacity="1" />
-                  </linearGradient>
-                </defs>
                 <polygon
                   points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
               </svg>
             </div>
             <div class="proof-text">
-              <strong>4.9/5</strong> based on reviews.<br />
-              <span class="counter-highlight"><span id="model-counter">1,250</span>+</span> BrickHeadz created.
+              <strong>0.0/5</strong> based on <span id="review-count">0</span> reviews.<br />
+              <span class="counter-highlight"><span id="model-counter">0</span></span> BrickHeadz created.
             </div>
           </div>
         </div>
@@ -252,8 +246,30 @@
     </div>
   </section>
 
+  <!-- Community Reviews Marquee -->
+  <section class="reviews-section band-alt" style="padding: 40px 0; overflow: hidden; background: var(--bg);">
+    <div class="container">
+      <div class="center reveal">
+        <span class="eyebrow">Community</span>
+        <h2>What people are saying</h2>
+      </div>
+    </div>
+    <div class="marquee-container" id="reviewsMarquee">
+      <div class="marquee-track" id="reviewsTrack">
+        <!-- Reviews injected here via JS -->
+      </div>
+    </div>
+  </section>
+
   <!-- How it works -->
-  <div class="how__grid">
+  <section id="how-it-works" class="band">
+    <div class="container">
+      <div class="center reveal">
+        <span class="eyebrow">The Process</span>
+        <h2>How it works</h2>
+        <p class="lead" style="max-width: 600px; margin: 0 auto 40px;">Three simple steps to transform your favorite portrait into a custom, buildable BrickHeadz model.</p>
+      </div>
+      <div class="how__grid">
     <!-- Step 1 -->
     <div class="how-step reveal">
       <div class="how-step__art">
@@ -334,6 +350,8 @@
       <p>Download the brick-by-brick PDF and the .ldr 3D file.</p>
     </div>
   </div>
+  </div>
+  </section>
 
   <div class="divider-studs"></div>
 
@@ -506,12 +524,61 @@
         lucide.createIcons();
       }
 
+      // Fetch reviews
+      fetch('/api/reviews')
+        .then(res => res.json())
+        .then(data => {
+          if (data.stats) {
+            const reviewCountEl = document.getElementById('review-count');
+            if (reviewCountEl) reviewCountEl.textContent = data.stats.total_reviews.toLocaleString();
+            
+            const avg = data.stats.average_rating || 0;
+            const starsContainer = document.querySelector('.social-proof .stars');
+            if (starsContainer) {
+              starsContainer.innerHTML = '';
+              for (let i = 1; i <= 5; i++) {
+                if (avg >= i) {
+                  starsContainer.innerHTML += `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#FFD23F" stroke="#FFD23F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                } else if (avg >= i - 0.5) {
+                  starsContainer.innerHTML += `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="url(#half_grad)" stroke="#FFD23F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                } else {
+                  starsContainer.innerHTML += `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFD23F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                }
+              }
+            }
+            
+            // Populate marquee
+            const track = document.getElementById('reviewsTrack');
+            if (track && data.reviews && data.reviews.length > 0) {
+              const createCard = (r) => {
+                let starsHtml = '';
+                for(let i=0; i<5; i++) {
+                  starsHtml += `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${i < r.rating ? '#FFD23F' : 'none'}" stroke="#FFD23F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                }
+                return `
+                  <div class="review-card">
+                    <div class="review-stars">${starsHtml}</div>
+                    <p class="review-comment">"${r.comment}"</p>
+                    <div class="review-author">- ${r.user_name}</div>
+                  </div>
+                `;
+              };
+              
+              let cardsHtml = data.reviews.map(createCard).join('');
+              track.innerHTML = cardsHtml + cardsHtml; // duplicate for smooth scrolling
+            } else if (track) {
+              track.innerHTML = `<p style="color:var(--fg-dim);">No reviews yet. Be the first!</p>`;
+            }
+          }
+        })
+        .catch(err => console.error("Could not fetch reviews:", err));
+
       // Fetch model counter
       fetch('/api/counter')
         .then(res => res.json())
         .then(data => {
           const counterEl = document.getElementById('model-counter');
-          if (counterEl && data.count) {
+          if (counterEl && data.count !== undefined) {
             counterEl.textContent = data.count.toLocaleString();
           }
         })
