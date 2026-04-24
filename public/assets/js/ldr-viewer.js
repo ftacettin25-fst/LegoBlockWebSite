@@ -89,19 +89,19 @@ window.initLdrViewer = function (ldrUrl) {
     }
 
     const colorMap = {
-      "0":"#05131D","1":"#0055BF","2":"#237841","4":"#C91A09","14":"#F2CD37",
-      "15":"#FFFFFF","16":"#FFFFFF","71":"#A0A5A9","72":"#6C6E68","25":"#EB6400","22":"#81007B"
+      "0": "#05131D", "1": "#0055BF", "2": "#237841", "4": "#C91A09", "14": "#F2CD37",
+      "15": "#FFFFFF", "16": "#FFFFFF", "71": "#A0A5A9", "72": "#6C6E68", "25": "#EB6400", "22": "#81007B"
     };
     const colorNameMap = {
-      "0":"Black","1":"Blue","2":"Green","4":"Red","14":"Yellow","15":"White",
-      "16":"White","71":"Lt. Gray","72":"Dk. Gray","25":"Orange","22":"Purple"
+      "0": "Black", "1": "Blue", "2": "Green", "4": "Red", "14": "Yellow", "15": "White",
+      "16": "White", "71": "Lt. Gray", "72": "Dk. Gray", "25": "Orange", "22": "Purple"
     };
     const partNameMap = {
-      "3024":"1x1 Plate","3023":"1x2 Plate","3022":"2x2 Plate","3623":"1x3 Plate",
-      "3710":"1x4 Plate","3021":"2x3 Plate","3020":"2x4 Plate","3666":"1x6 Plate",
-      "3034":"1x8 Plate","3070b":"1x1 Tile","3069b":"1x2 Tile","3001":"2x4 Brick",
-      "3003":"2x2 Brick","3004":"1x2 Brick","3005":"1x1 Brick","3010":"1x4 Brick",
-      "6141":"1x1 Round Plate","4073":"1x1 Round Plate"
+      "3024": "1x1 Plate", "3023": "1x2 Plate", "3022": "2x2 Plate", "3623": "1x3 Plate",
+      "3710": "1x4 Plate", "3021": "2x3 Plate", "3020": "2x4 Plate", "3666": "1x6 Plate",
+      "3034": "1x8 Plate", "3070b": "1x1 Tile", "3069b": "1x2 Tile", "3001": "2x4 Brick",
+      "3003": "2x2 Brick", "3004": "1x2 Brick", "3005": "1x1 Brick", "3010": "1x4 Brick",
+      "6141": "1x1 Round Plate", "4073": "1x1 Round Plate"
     };
 
     const partLines = [];
@@ -146,17 +146,17 @@ window.initLdrViewer = function (ldrUrl) {
 
     // ---- v2 theme palette (matches tokens-v2.css) ----
     const C = {
-      bg:        [255, 255, 255], // --bg
-      bgAlt:     [247, 247, 249], // --bg-alt
-      panel:     [252, 251, 255], // soft panel
+      bg: [255, 255, 255], // --bg
+      bgAlt: [247, 247, 249], // --bg-alt
+      panel: [252, 251, 255], // soft panel
       panelEdge: [232, 232, 238], // --hairline
-      navBg:     [14, 14, 16],    // --nav-bg
-      fg:        [17, 17, 20],    // --fg
-      fgDim:     [90, 90, 102],   // --fg-dim
-      accent:    [183, 166, 232], // --accent
-      accentDeep:[110, 85, 194],  // --accent-deep
-      accentSoft:[239, 234, 251], // --accent-soft
-      white:     [255, 255, 255],
+      navBg: [14, 14, 16],    // --nav-bg
+      fg: [17, 17, 20],    // --fg
+      fgDim: [90, 90, 102],   // --fg-dim
+      accent: [183, 166, 232], // --accent
+      accentDeep: [110, 85, 194],  // --accent-deep
+      accentSoft: [239, 234, 251], // --accent-soft
+      white: [255, 255, 255],
     };
     const setFill = c => pdf.setFillColor(c[0], c[1], c[2]);
     const setText = c => pdf.setTextColor(c[0], c[1], c[2]);
@@ -369,44 +369,45 @@ window.initLdrViewer = function (ldrUrl) {
     camera.lookAt(savedTarget); controls.update(); renderer.render(scene, camera);
     newBtn.innerHTML = originalLabel; newBtn.style.opacity = '1'; newBtn.disabled = false;
   });
-
-  // ===== VIEW CYCLE ENGINE =====
-  // Supports both #btn-view-cycle (action bar) and any [data-view-cycle] inside the viewer el
-  const viewCycleBtns = [
-    document.getElementById('btn-view-cycle'),
-    ...Array.from(viewerEl.querySelectorAll('[data-view-cycle]'))
-  ].filter(Boolean);
-
-  viewCycleBtns.forEach(btn => {
-    const freshBtn = btn.cloneNode(true);
-    btn.parentNode.replaceChild(freshBtn, btn);
-    
-    let currentViewIndex = 0;
-    
-    freshBtn.addEventListener('click', () => {
-      if (!loadedModelGroup) return;
-      
-      const box = new THREE.Box3().setFromObject(loadedModelGroup);
-      const size = box.getSize(new THREE.Vector3());
-      const maxDim = Math.max(size.x, size.y, size.z);
-      const fov = camera.fov * (Math.PI / 180);
-      const cz = Math.abs((maxDim / 2) / Math.tan(fov / 2));
-      const d = cz * 1.5;
-      
-      // All views look at world origin (= model center)
-      const views = [
-        new THREE.Vector3(0, 0, d),              // Front (default)
-        new THREE.Vector3(-d * 0.8, 0, d * 0.8), // Left corner
-        new THREE.Vector3(d * 0.8, 0, d * 0.8),  // Right corner
-        new THREE.Vector3(0, 0, -d),              // Back
-        new THREE.Vector3(0, d * 1.3, 0),         // Top
-      ];
-      
-      currentViewIndex = (currentViewIndex + 1) % views.length;
-      controls.target.set(0, 0, 0);
-      camera.position.copy(views[currentViewIndex]);
-      camera.lookAt(0, 0, 0);
-      controls.update();
-    });
-  });
 };
+
+// ===== VIEW CYCLE ENGINE =====
+// Supports both #btn-view-cycle (action bar) and any [data-view-cycle] inside the viewer el
+const viewCycleBtns = [
+  document.getElementById('btn-view-cycle'),
+  ...Array.from(viewerEl.querySelectorAll('[data-view-cycle]'))
+].filter(Boolean);
+
+viewCycleBtns.forEach(btn => {
+  const freshBtn = btn.cloneNode(true);
+  btn.parentNode.replaceChild(freshBtn, btn);
+
+  let currentViewIndex = 0;
+
+  freshBtn.addEventListener('click', () => {
+    if (!loadedModelGroup) return;
+
+    const box = new THREE.Box3().setFromObject(loadedModelGroup);
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const fov = camera.fov * (Math.PI / 180);
+    const cz = Math.abs((maxDim / 2) / Math.tan(fov / 2));
+    const d = cz * 1.5;
+
+    // All views look at world origin (= model center)
+    const views = [
+      new THREE.Vector3(0, 0, d),              // Front (default)
+      new THREE.Vector3(-d * 0.8, 0, d * 0.8), // Left corner
+      new THREE.Vector3(d * 0.8, 0, d * 0.8),  // Right corner
+      new THREE.Vector3(0, 0, -d),              // Back
+      new THREE.Vector3(0, d * 1.3, 0),         // Top
+    ];
+
+    currentViewIndex = (currentViewIndex + 1) % views.length;
+    controls.target.set(0, 0, 0);
+    camera.position.copy(views[currentViewIndex]);
+    camera.lookAt(0, 0, 0);
+    controls.update();
+  });
+});
+
