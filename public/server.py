@@ -206,7 +206,8 @@ def create_brickheadz():
             if _firebase_ready:
                 try:
                     from db import upload_blob_to_storage, increment_counter
-                    remote_ldr_path = f"jobs/{job_id}/{output_name}"
+                    # Use timestamp as folder name so files are easy to find by date
+                    remote_ldr_path = f"jobs/{now_str}/{output_name}"
                     upload_blob_to_storage(output_path, remote_ldr_path)
                     ldr_url      = f"/api/ldr/{remote_ldr_path}"
                     download_url = f"/api/download/{remote_ldr_path}"

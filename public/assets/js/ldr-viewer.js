@@ -339,7 +339,7 @@ window.initLdrViewer = function (ldrUrl) {
   // ===== VIEW CYCLE ENGINE =====
   const viewCycleBtns = [
     document.getElementById('btn-view-cycle'),
-    ...Array.from(viewerEl.querySelectorAll('[data-view-cycle]'))
+    ...Array.from((viewerEl.parentElement || document).querySelectorAll('[data-view-cycle]'))
   ].filter(Boolean);
 
   viewCycleBtns.forEach(btn => {
