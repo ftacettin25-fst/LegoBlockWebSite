@@ -14,12 +14,12 @@ import {
 
 // TODO: replace with your real Firebase web config
 export const firebaseConfig = {
-  apiKey: 'REPLACE_ME',
+  apiKey: 'AIzaSyA1LnlN73Sg67jtG_hY2k8BoBVUof4EPrI',
   authDomain: 'legoproje-c4094.firebaseapp.com',
   projectId: 'legoproje-c4094',
-  storageBucket: 'legoproje-c4094.appspot.com',
-  messagingSenderId: 'REPLACE_ME',
-  appId: 'REPLACE_ME',
+  storageBucket: 'legoproje-c4094.firebasestorage.app',
+  messagingSenderId: '979628463997',
+  appId: '1:979628463997:web:9c4d25d745317caedc5e14',
 };
 
 export const app = initializeApp(firebaseConfig);
