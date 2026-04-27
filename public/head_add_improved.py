@@ -612,7 +612,7 @@ def _segment_foreground(img):
     # Option 1: Global Match based on top-left pixel with small tolerance
     bg_color = img[0, 0]
     diff = np.abs(img.astype(np.int16) - bg_color.astype(np.int16))
-    is_bg = np.all(diff <= 15, axis=-1)
+    is_bg = np.all(diff <= 5, axis=-1)
 
     # binary_mask: 255 for foreground, 0 for background
     binary_mask = np.where(is_bg, 0, 255).astype('uint8')

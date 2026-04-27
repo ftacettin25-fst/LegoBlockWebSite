@@ -163,7 +163,7 @@
               </svg>
             </div>
             <div class="proof-text">
-              <strong>0.0/5</strong> based on <span id="review-count">0</span> reviews.<br />
+              <strong><span id="avg-rating">0.0</span>/5</strong> based on <span id="review-count">0</span> reviews.<br />
               <span class="counter-highlight"><span id="model-counter">0</span></span> BrickHeadz created.
             </div>
           </div>
@@ -548,6 +548,9 @@
           if (data.stats) {
             const reviewCountEl = document.getElementById('review-count');
             if (reviewCountEl) reviewCountEl.textContent = data.stats.total_reviews.toLocaleString();
+
+            const avgRatingEl = document.getElementById('avg-rating');
+            if (avgRatingEl) avgRatingEl.textContent = (data.stats.average_rating || 0).toFixed(1);
             
             const avg = data.stats.average_rating || 0;
             const starsContainer = document.querySelector('.social-proof .stars');
