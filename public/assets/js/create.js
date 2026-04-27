@@ -3,6 +3,8 @@
 // real call to POST /api/create on the Flask backend.
 // =========================================================
 import { initNav, initReveal, getCart, setCart, toast } from './nav.js';
+import { saveBuild } from './builds.js';
+import { Auth } from './auth.js';
 
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 const ACCEPT = ['image/jpeg', 'image/png', 'image/webp'];
@@ -124,11 +126,8 @@ async function build() {
     }
     lastResult = data;
     showResult(data);
-    
-    // Show review modal after a short delay
-    setTimeout(() => {
-      if (window.showReviewModal) window.showReviewModal(data.job_id);
-    }, 1500);
+    // Auto-save to the signed-in user's account (silent if not logged in)
+    autoSaveBuild(data).catch((err) => console.warn('[create] auto-save:', err));
   } catch (e) {
     clearInterval(timer);
     overlay.classList.remove('active');
@@ -163,6 +162,34 @@ function showResult(data) {
 
   if (window.initLdrViewer) window.initLdrViewer(data.ldr_url);
   $('#result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/**
+ * Grab a thumbnail from the LDR viewer's canvas (if any) and save the
+ * build under the current user. We wait a bit so the viewer has time to
+ * render before snapshotting.
+ */
+async function autoSaveBuild(data) {
+  if (!Auth.current) return; // not logged in — skip
+  // Give the viewer ~1.2s to load the model and render at least one frame
+  await new Promise((r) => setTimeout(r, 1200));
+  let thumbDataUrl = null;
+  try {
+    const canvas = document.querySelector('#ldr-viewer canvas, #viewer canvas, canvas');
+    if (canvas) thumbDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+  } catch (e) {
+    console.warn('[create] thumb capture failed:', e);
+  }
+  const saved = await saveBuild({
+    ldrUrl: data.ldr_url,
+    thumbDataUrl,
+    name: `BrickHeadz ${new Date().toLocaleDateString()}`,
+    meta: {
+      jobId: data.job_id || null,
+      personData: data.person_data || null,
+    },
+  });
+  if (saved) toast('Saved to your account', 'ok');
 }
 
 function addToCart() {
@@ -218,71 +245,20 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#build-btn').addEventListener('click', build);
   $('#reset-btn').addEventListener('click', reset);
   $('#cart-btn').addEventListener('click', addToCart);
-});
 
-// Review Modal Logic
-let currentReviewRating = 5;
-window.showReviewModal = function(jobId) {
-  const modal = $('#review-modal');
-  if (!modal) return;
-  modal.dataset.jobId = jobId;
-  modal.classList.add('active');
-  
-  const stars = document.querySelectorAll('.star-rating-icon');
-  const updateStars = (r) => {
-    stars.forEach((s, idx) => {
-      if (idx < r) {
-        s.setAttribute('fill', '#FFD23F');
-        s.setAttribute('stroke', '#FFD23F');
-      } else {
-        s.setAttribute('fill', 'none');
-        s.setAttribute('stroke', '#FFD23F');
-      }
-    });
-  };
-  updateStars(currentReviewRating);
-  
-  stars.forEach(star => {
-    star.addEventListener('click', (e) => {
-      currentReviewRating = parseInt(e.currentTarget.dataset.rating);
-      updateStars(currentReviewRating);
-    });
-  });
-  
-  $('#review-submit-btn').onclick = async () => {
-    const name = $('#review-name').value.trim() || 'Anonymous';
-    const comment = $('#review-comment').value.trim();
-    if (!comment) {
-      toast('Please write a short comment', 'error');
-      return;
+  // If we arrive with ?ldr=<url> (e.g. from the order page "My builds"),
+   // skip the upload step and load the saved model straight into the viewer.
+  const params = new URLSearchParams(location.search);
+  const presetLdr = params.get('ldr');
+  if (presetLdr) {
+    const name = params.get('name') || 'Saved build';
+    const result = $('#result');
+    if (result) result.classList.add('visible');
+    const dl = $('#download-link');
+    if (dl) { dl.href = presetLdr; dl.download = `${name}.ldr`; }
+    if (window.initLdrViewer) {
+      try { window.initLdrViewer(presetLdr); }
+      catch (e) { console.warn('Failed to open saved LDR:', e); }
     }
-    
-    const btn = $('#review-submit-btn');
-    btn.disabled = true;
-    btn.textContent = 'Submitting...';
-    
-    try {
-      const resp = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_name: name, rating: currentReviewRating, comment, job_id: jobId })
-      });
-      if (resp.ok) {
-        toast('Review submitted! Thank you.', 'ok');
-        modal.classList.remove('active');
-      } else {
-        toast('Failed to submit review.', 'error');
-        btn.disabled = false;
-        btn.textContent = 'Submit Review';
-      }
-    } catch(err) {
-      toast('Error submitting review.', 'error');
-      btn.disabled = false;
-      btn.textContent = 'Submit Review';
-    }
-  };
-  
-  $('#review-skip-btn').onclick = () => {
-    modal.classList.remove('active');
-  };
-};
+  }
+});

@@ -22,7 +22,12 @@ TEMPLATE_PATHS = {
     "Back":  r"picture examples/DefaultGrayGuy_BackView.PNG",
     "Left":  r"picture examples/DefaultGrayGuy_LeftView.PNG",
 }
-
+SHIRT_TYPE_CHOICES = [
+    "plain short sleeve t-shirt", "plain long sleeve t-shirt", "sleeveless tank top",
+    "v-neck t-shirt", "turtleneck sweater", "horizontally striped t-shirt", 
+    "plaid flannel shirt", "hoodie", "polo shirt with collar", 
+    "button-up shirt", "open jacket over a t-shirt", "suit and tie"
+]
 # Where generated images are saved locally (so we can reuse them with --skip-gen)
 GENERATED_DIR = "generated_views"
 os.makedirs(GENERATED_DIR, exist_ok=True)
@@ -102,34 +107,38 @@ LDRAW_COLORS = {
 }
 
 
-def _rgb_distance(c1, c2):
-    return np.sqrt(sum((int(a) - int(b)) ** 2 for a, b in zip(c1, c2)))
-
-
 def get_dominant_color(roi_bgr):
-    if roi_bgr.size == 0:
-        return 15
-    hsv = cv2.cvtColor(roi_bgr, cv2.COLOR_BGR2HSV)
-    h, s, v = cv2.split(hsv)
-    saturation_mask = s > 40
-    valid_pixels = np.count_nonzero(saturation_mask)
-    total = roi_bgr.shape[0] * roi_bgr.shape[1]
-    if valid_pixels < (total * 0.15):
-        mean_val = np.mean(v)
-        if mean_val < 60:   return 0
-        if mean_val < 130:  return 72
-        if mean_val < 200:  return 71
-        return 15
-    mean_bgr = cv2.mean(roi_bgr)[:3]
-    mean_rgb  = (int(mean_bgr[2]), int(mean_bgr[1]), int(mean_bgr[0]))
-    best_code = 4
-    best_dist = float("inf")
-    for code, info in LDRAW_COLORS.items():
-        dist = _rgb_distance(mean_rgb, info["rgb"])
-        if dist < best_dist:
-            best_dist = dist
-            best_code = code
-    return best_code
+    # 1. Güvenlik Kontrolü: Gelen matris boş mu?
+    if roi_bgr is None or roi_bgr.size == 0:
+        return 0  # Projen LDR formatında boşluk için 0 veya None bekliyor olabilir
+        
+    median_b = np.median(roi_bgr[:, :, 0])
+    median_g = np.median(roi_bgr[:, :, 1])
+    median_r = np.median(roi_bgr[:, :, 2])
+    
+    # RGB formatına çevir
+    rgb_tuple = (median_r, median_g, median_b)
+    
+    rgb_norm = [c / 255.0 for c in rgb_tuple]
+    input_lab = color.rgb2lab([[rgb_norm]])[0][0]
+    
+    # 4. Delta-E Eşleştirmesi
+    min_dist = float('inf')
+    best_ldr_code = "0"  # Hata durumunda dönecek varsayılan kod (Örn: Siyah)
+    
+    for ldr_code, info in LDRAW_COLORS.items():
+        # Veritabanındaki palet rengini de CIELAB'a çevir
+        ref_rgb_norm = [c / 255.0 for c in info['rgb']]
+        ref_lab = color.rgb2lab([[ref_rgb_norm]])[0][0]
+        
+        # CIEDE2000 formülünü uygula (İnsan gözünün yanılgılarını taklit eder)
+        dist = color.deltaE_ciede2000(input_lab, ref_lab)
+        
+        if dist < min_dist:
+            min_dist = dist
+            best_ldr_code = ldr_code
+
+    return int(best_ldr_code)
 
 
 # =============================================================================
@@ -168,15 +177,18 @@ def _generate_single_view_task(task_data: tuple) -> tuple:
     bottom_full = f"{bottom_desc} {_ldraw_rgb(person_data.get('bottom_ldraw_code', 72))}"
     skin_full   = f"{skin_desc} {_ldraw_rgb(person_data.get('skin_ldraw_code', 92))}"
     hair_full   = f"{hair_desc} {_ldraw_rgb(person_data.get('hair_ldraw_code', 0))}"
-
+    shirt_type  = person_data.get('shirt_type', 'unknown style')
+    
     prompt = (
         f"Recolor this BrickHeadz LEGO {view_label} view template using the reference photo. "
-        f"Legs: {bottom_full}. Torso: {top_full}. Skin (face/ears/hands): {skin_full}. "
+        f"Legs: {bottom_full}. "
+        f"Torso: {top_full}, Torso Style: {shirt_type} (adjust arm, shoulder, and chest colors to represent this style). Each individual block MUST have only one, solid, uniform color"
+        f"Skin (face/ears/hands/exposed arms): {skin_full}. "
         f"Hair: {hair_full} — match color and style from photo. "
+        f"— match color and style from photo. "
         f"RULES: Only change colors, never alter shape, structure, size or brick layout. "
-        f"Base plate stays exactly 8 studs wide. Use only standard LEGO colors. "
-        f"Flat 2D illustration style, solid colors only."
-    )
+        f"Base plate stays exactly 8 studs wide. Use only standard LEGO colors. Flat 2D illustration style, solid colors only."
+        )
 
     try:
         ref_url      = fal_client.upload_file(ref_photo_path)
@@ -325,22 +337,24 @@ def analyze_person(photo_path: str, person_number: int) -> dict:
 
     ldraw_codes_hint = str({k: v["name"] for k, v in list(LDRAW_COLORS.items())[:20]}) + " ..."
 
-    prompt = (
+    prompt = prompt = (
         "Analyze this person's photo carefully. "
         "Respond ONLY with a valid JSON object (no markdown, no extra text) with exactly these fields:\n"
-        "  hair_type          : one of " + str(HAIR_TYPE_CHOICES) + "\n"
-        "  hair_color         : short color name (e.g. 'black', 'blonde', 'dark brown')\n"
-        "  hair_ldraw_code    : closest LDraw color integer for the hair\n"
-        "  top_clothing_color : short color name for the upper body clothing\n"
-        "  top_ldraw_code     : closest LDraw color integer for upper clothing\n"
+        "  hair_type             : one of " + str(HAIR_TYPE_CHOICES) + "\n"
+        "  hair_color            : short color name (e.g. 'black', 'blonde', 'dark brown')\n"
+        "  hair_ldraw_code       : closest LDraw color integer for the hair\n"
+        "  shirt_type            : short description of shirt style (e.g. )" + str(SHIRT_TYPE_CHOICES) + "\n"
+        "  top_clothing_color    : short color name for the upper body clothing\n"
+        "  top_ldraw_code        : closest LDraw color integer for upper clothing\n"
         "  bottom_clothing_color : short color name for lower body clothing\n"
-        "  bottom_ldraw_code  : closest LDraw color integer for lower clothing\n"
-        "  skin_color_desc    : short description of skin tone (e.g. 'light', 'medium', 'dark')\n"
-        "  skin_ldraw_code    : closest LDraw color integer for skin tone\n"
-        "  confidence         : float 0-1\n\n"
+        "  bottom_ldraw_code     : closest LDraw color integer for lower clothing\n"
+        "  skin_color_desc       : short description of skin tone (e.g. 'light', 'medium', 'dark')\n"
+        "  skin_ldraw_code       : closest LDraw color integer for skin tone\n"
+        "  confidence            : float 0-1\n\n"
         "LDraw color reference (partial): " + ldraw_codes_hint + "\n\n"
         "Example output:\n"
         "{\"hair_type\":\"short_straight\",\"hair_color\":\"black\",\"hair_ldraw_code\":0,"
+        "\"shirt_type\":\"short sleeve plain t-shirt\","
         "\"top_clothing_color\":\"navy blue\",\"top_ldraw_code\":272,"
         "\"bottom_clothing_color\":\"dark gray\",\"bottom_ldraw_code\":72,"
         "\"skin_color_desc\":\"medium\",\"skin_ldraw_code\":92,\"confidence\":0.91}"

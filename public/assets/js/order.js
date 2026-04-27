@@ -3,8 +3,101 @@
 // + cart rendering / qty / remove / checkout.
 // =========================================================
 import { initNav, initReveal, getCart, setCart, toast } from './nav.js';
+import { Auth } from './auth.js';
+import { watchUserBuilds, deleteBuild } from './builds.js';
 
 function $(s, r = document) { return r.querySelector(s); }
+
+// ---------- My Builds (saved LDR files for signed-in users) ----------
+let unsubBuilds = null;
+
+function fmtDate(ts) {
+  if (!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+function showBuildsState({ signedOut = false, loading = false, empty = false }) {
+  const so = $('#builds-signedout');
+  const ld = $('#builds-loading');
+  const em = $('#builds-empty');
+  const list = $('#builds-list');
+  if (so) so.style.display = signedOut ? 'block' : 'none';
+  if (ld) ld.style.display = loading ? 'block' : 'none';
+  if (em) em.style.display = empty ? 'block' : 'none';
+  if (list && (signedOut || loading || empty)) list.innerHTML = '';
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function renderBuilds(uid, items) {
+  const list = $('#builds-list');
+  if (!list) return;
+  if (!items.length) return showBuildsState({ empty: true });
+  showBuildsState({});
+
+  list.innerHTML = items.map((b) => {
+    const viewerUrl = b.ldrUrl
+      ? `create.html?ldr=${encodeURIComponent(b.ldrUrl)}&name=${encodeURIComponent(b.name || 'build')}`
+      : '#';
+    const thumbStyle = b.thumbUrl
+      ? `background:#f3f4f6 center/cover no-repeat url('${b.thumbUrl}')`
+      : 'background:#f3f4f6';
+    return `
+    <li class="build-card" style="border:1px solid var(--border,#e5e7eb);border-radius:14px;overflow:hidden;background:var(--surface,#fff);display:flex;flex-direction:column">
+      <a href="${viewerUrl}" style="display:block;aspect-ratio:1/1;${thumbStyle};text-decoration:none;color:#9ca3af;display:flex;align-items:center;justify-content:center" aria-label="Open ${escapeHtml(b.name || 'build')}">
+        ${b.thumbUrl ? '' : '<i data-lucide="image"></i>'}
+      </a>
+      <div style="padding:10px 12px;display:flex;flex-direction:column;gap:4px">
+        <strong style="font-size:14px;line-height:1.2">${escapeHtml(b.name || 'Untitled')}</strong>
+        <span style="font-size:12px;color:var(--muted,#6b7280)">${fmtDate(b.createdAt)}</span>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <a class="btn btn--primary btn--sm" style="flex:1;text-align:center" href="${viewerUrl}">
+            <i data-lucide="eye"></i> Open
+          </a>
+          <a class="btn btn--ghost btn--sm" href="${b.ldrUrl}" download="${escapeHtml(b.name || 'build')}.ldr" aria-label="Download LDR">
+            <i data-lucide="download"></i>
+          </a>
+          <button class="btn btn--ghost btn--sm" data-del="${b.id}" aria-label="Delete">
+            <i data-lucide="trash-2"></i>
+          </button>
+        </div>
+      </div>
+    </li>`;
+  }).join('');
+
+  list.querySelectorAll('[data-del]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-del');
+      if (!confirm('Delete this build?')) return;
+      btn.disabled = true;
+      try { await deleteBuild(uid, id); }
+      catch (e) { alert('Delete failed: ' + (e.message || e)); btn.disabled = false; }
+    });
+  });
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function startBuildsWatch(uid) {
+  stopBuildsWatch();
+  showBuildsState({ loading: true });
+  unsubBuilds = watchUserBuilds(
+    uid,
+    (items) => renderBuilds(uid, items),
+    () => {
+      showBuildsState({ empty: true });
+      const em = $('#builds-empty');
+      if (em) em.innerHTML = '<i data-lucide="alert-triangle"></i> Could not load your builds.';
+      if (window.lucide) window.lucide.createIcons();
+    },
+  );
+}
+function stopBuildsWatch() {
+  if (unsubBuilds) { try { unsubBuilds(); } catch {} unsubBuilds = null; }
+}
 
 function renderTimeline(stage) {
   // stage: 0..3 (Submitted, Designing, Shipped, Delivered)
@@ -114,4 +207,14 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#order-lookup').addEventListener('click', lookupOrder);
   $('#order-id').addEventListener('keydown', (e) => { if (e.key === 'Enter') lookupOrder(); });
   renderCart();
+
+  // React to auth changes for the "My builds" panel.
+  if (Auth?.onChange) {
+    Auth.onChange((user) => {
+      if (user) startBuildsWatch(user.uid);
+      else { stopBuildsWatch(); showBuildsState({ signedOut: true }); }
+    });
+  } else {
+    showBuildsState({ signedOut: true });
+  }
 });

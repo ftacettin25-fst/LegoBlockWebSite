@@ -1,126 +1,110 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Check your Grids2Bricks order status or review your cart." />
   <title>Orders & Cart — Grids2Bricks</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Mulish:wght@400;500;700;800&display=swap"
-    rel="stylesheet" />
-  <link rel="stylesheet" href="../assets/css/tokens-v2.css" />
-  <link rel="stylesheet" href="../assets/css/base-v2.css" />
-  <link rel="stylesheet" href="../assets/css/components-v2.css" />
-  <link rel="stylesheet" href="../assets/css/pages-v2.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/pages.css" />
+
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-
 <body>
-  <header class="nav" id="nav">
+
+  <nav class="nav" id="nav">
     <div class="nav__inner">
-      <a class="brand" href="index.html">Grids2Bricks</a>
-      <nav class="nav__links">
+      <a href="index.html" class="brand">Grids<span class="brand__dot">2</span>Bricks</a>
+      <div class="nav__links">
         <a href="index.html" data-nav-link>Home</a>
         <a href="create.html" data-nav-link>Create</a>
-        <a href="order.html" data-nav-link>Order</a>
-      </nav>
-      <div class="nav__icons">
-        <a class="icon-btn" href="order.html" aria-label="Cart"><i data-lucide="shopping-bag"></i><span
-            class="cart-badge" data-cart-badge>0</span></a>
-        <span id="account-slot"></span>
+        <a href="order.html" data-nav-link>Orders</a>
+      </div>
+      <div class="nav__right">
+        <a href="order.html" class="icon-btn" aria-label="Cart">
+          <i data-lucide="shopping-cart"></i>
+          <span class="cart-badge" data-cart-badge style="display:none">0</span>
+        </a>
+        <div id="account-slot"></div>
         <button class="icon-btn menu-toggle" id="menu-toggle" aria-label="Menu"><i data-lucide="menu"></i></button>
       </div>
     </div>
-    <div class="mobile-drawer" id="mobile-drawer">
-      <a href="index.html">Home</a>
-      <a href="create.html">Create</a>
-      <a href="order.html">Order</a>
-      <a href="account.html">Account</a>
-    </div>
-  </header>
+  </nav>
+  <div class="mobile-drawer" id="mobile-drawer">
+    <a href="index.html">Home</a><a href="create.html">Create</a><a href="order.html">Orders</a>
+  </div>
 
-
-  <script type="module">
-    import { initNav, initReveal } from '../assets/js/nav.js';
-    document.addEventListener('DOMContentLoaded', () => { initNav(); initReveal(); });
-  </script>
-
-  <section>
+  <main class="order-wrap">
     <div class="container">
-      <div class="reveal" style="text-align:center;max-width:640px;margin:0 auto">
-        <span class="eyebrow">Orders</span>
-        <h1>Track your order & cart</h1>
-        <p class="dim">Look up your order status or review what's in your cart.</p>
+      <div class="create-head reveal">
+        <span class="eyebrow"><i data-lucide="package-search"></i> Orders & cart</span>
+        <h1 class="text-grad">Track or check out</h1>
+        <p>Look up an order's status, or review the bricks waiting in your cart.</p>
       </div>
 
       <div class="order-grid">
         <!-- Order lookup -->
         <div class="card reveal">
-          <h3 style="margin-bottom:14px">Order lookup</h3>
-          <div class="field">
-            <label for="order-id">Order ID</label>
-            <input id="order-id" class="input" placeholder="e.g. G2B-2025-0421" />
+          <h2 style="font-size:1.4rem;margin-bottom:6px"><i data-lucide="search" style="color:var(--accent-hi)"></i> Order status</h2>
+          <p style="margin-bottom:18px">Enter the order ID from your confirmation email.</p>
+          <div style="display:flex;gap:8px">
+            <input id="order-id" class="input" placeholder="e.g. ORD-1A2B3C" />
+            <button id="order-lookup" class="btn btn--primary"><i data-lucide="arrow-right"></i></button>
           </div>
-          <button class="btn btn--primary" id="order-lookup"><i data-lucide="search"></i> Check status</button>
           <div id="order-result"></div>
         </div>
 
         <!-- Cart -->
         <div class="card reveal">
-          <h3 style="margin-bottom:14px">Your cart</h3>
-          <div id="cart-list"></div>
+          <h2 style="font-size:1.4rem;margin-bottom:6px"><i data-lucide="shopping-cart" style="color:var(--accent-hi)"></i> Your cart</h2>
+          <p style="margin-bottom:6px">Review and adjust items before checkout.</p>
+          <div id="cart-list" class="cart-items"></div>
           <div id="cart-summary"></div>
         </div>
       </div>
+
+      <div class="card reveal" id="my-builds-card" style="margin-top:24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+          <div>
+            <h2 style="font-size:1.4rem;margin:0"><i data-lucide="layers" style="color:var(--accent-hi)"></i> My builds</h2>
+            <p style="margin:4px 0 0">Your previously generated BrickHeadz, ready to re-open or download.</p>
+          </div>
+          <a href="create.html" class="btn btn--ghost btn--sm"><i data-lucide="plus"></i> New build</a>
+        </div>
+
+        <div id="builds-signedout" style="display:none">
+          <div class="alert" style="display:flex;gap:10px;align-items:center">
+            <i data-lucide="log-in"></i>
+            <span>Sign in to see and re-open the BrickHeadz you've created.</span>
+            <a href="account.html" class="btn btn--primary btn--sm" style="margin-left:auto">Sign in</a>
+          </div>
+        </div>
+        <div id="builds-loading" style="display:none">Loading your builds…</div>
+        <div id="builds-empty" style="display:none"><i data-lucide="inbox"></i> You haven't saved any builds yet.</div>
+        <ul id="builds-list" class="builds-grid" style="list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px"></ul>
+      </div>
     </div>
-  </section>
+  </main>
 
   <footer class="footer">
     <div class="container">
-      <div class="footer__grid">
-        <div>
-          <div class="footer__brand">Grids2Bricks</div>
-          <p style="margin-top:10px;max-width:320px">Custom BrickHeadz from your photos. Designed with love, built brick by brick.</p>
-          <div class="social" style="margin-top:12px">
-            <a href="#" aria-label="Instagram">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-            </a>
-            <a href="#" aria-label="X (Twitter)">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-            </a>
-            <a href="mailto:hello@grids2bricks.com" aria-label="Email">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-            </a>
-          </div>
-        </div>
-        <div>
-          <h4>Shop</h4>
-          <a href="create.html">Create</a>
-          <a href="index.html#gallery">Gallery</a>
-          <a href="order.html">Cart</a>
-        </div>
-        <div>
-          <h4>Help</h4>
-          <a href="index.html#faq">FAQ</a>
-          <a href="order.html">Order status</a>
-          <a href="account.html">Account</a>
-        </div>
-        <div>
-          <h4>Company</h4>
-          <a href="#">About</a>
-          <a href="#">Contact</a>
-          <a href="#">Privacy</a>
+      <div class="footer__inner">
+        <a href="index.html" class="brand">Grids<span class="brand__dot">2</span>Bricks</a>
+        <div class="footer__links">
+          <a href="index.html">Home</a><a href="create.html">Create</a><a href="order.html">Orders</a>
         </div>
       </div>
-      <div class="footer__bottom">
-        <span>© Grids2Bricks. All rights reserved.</span>
-        <span>Made with bricks ♥</span>
-      </div>
+      <div class="footer__bottom">© 2026 Grids2Bricks.</div>
     </div>
   </footer>
 
-  <script type="module" src="../assets/js/order.js"></script>
+  <script type="module" src="assets/js/order.js"></script>
 </body>
-
 </html>
