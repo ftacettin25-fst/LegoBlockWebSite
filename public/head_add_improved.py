@@ -10,6 +10,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import requests
 import fal_client      # pip install fal-client
+from skimage import color  # pip install scikit-image
 
 # =============================================================================
 # --- CONFIGURATION ---

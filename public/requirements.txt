@@ -6,4 +6,4 @@ numpy>=1.26.0
 matplotlib>=3.8.0
 requests>=2.31.0
 firebase-admin>=6.4.0
- 
+scikit-image>=0.22.0
