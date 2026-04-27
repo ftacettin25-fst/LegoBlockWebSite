@@ -21,6 +21,7 @@ const STAGES = [
 
 let uploadedFile = null;
 let lastResult   = null;
+let currentRating = 5;
 
 function $(s, root = document) { return root.querySelector(s); }
 
@@ -128,6 +129,19 @@ async function build() {
     showResult(data);
     // Auto-save to the signed-in user's account (silent if not logged in)
     autoSaveBuild(data).catch((err) => console.warn('[create] auto-save:', err));
+
+    // Show review modal after 12 seconds
+    setTimeout(() => {
+      const modal = $('#review-modal');
+      if (modal && !modal.classList.contains('active')) {
+        // Pre-fill name if logged in
+        if (Auth.current && Auth.current.displayName) {
+          const nameInput = $('#review-name');
+          if (nameInput) nameInput.value = Auth.current.displayName;
+        }
+        modal.classList.add('active');
+      }
+    }, 12000);
   } catch (e) {
     clearInterval(timer);
     overlay.classList.remove('active');
@@ -215,9 +229,89 @@ function reset() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function initReviewModal() {
+  const modal = $('#review-modal');
+  const stars = document.querySelectorAll('.star-rating-icon');
+  const submitBtn = $('#review-submit-btn');
+  const skipBtn = $('#review-skip-btn');
+
+  if (!modal) return;
+
+  // Star selection logic
+  stars.forEach(star => {
+    star.addEventListener('click', () => {
+      currentRating = parseInt(star.getAttribute('data-rating'));
+      updateStars();
+    });
+  });
+
+  function updateStars() {
+    stars.forEach(star => {
+      const rating = parseInt(star.getAttribute('data-rating'));
+      if (rating <= currentRating) {
+        star.classList.add('active');
+      } else {
+        star.classList.remove('active');
+      }
+    });
+  }
+
+  // Initial star state
+  updateStars();
+
+  if (skipBtn) {
+    skipBtn.addEventListener('click', () => {
+      modal.classList.remove('active');
+    });
+  }
+
+  if (submitBtn) {
+    submitBtn.addEventListener('click', async () => {
+      const name = $('#review-name').value.trim() || 'Anonymous';
+      const comment = $('#review-comment').value.trim();
+
+      submitBtn.disabled = true;
+      const originalText = submitBtn.innerHTML;
+      submitBtn.textContent = 'Submitting...';
+
+      try {
+        const resp = await fetch('/api/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_name: name,
+            rating: currentRating,
+            comment: comment,
+            job_id: lastResult ? lastResult.job_id : null
+          })
+        });
+
+        const data = await resp.json();
+        if (data.success) {
+          toast('Thank you for your review!', 'ok');
+          modal.classList.remove('active');
+          // Reset for next time
+          $('#review-comment').value = '';
+          currentRating = 5;
+          updateStars();
+        } else {
+          throw new Error(data.error || 'Failed to submit');
+        }
+      } catch (err) {
+        toast('Could not save review', 'err');
+        console.error(err);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+    });
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initNav();
   initReveal();
+  initReviewModal();
 
   const dz = $('#dropzone');
   const input = $('#file-input');

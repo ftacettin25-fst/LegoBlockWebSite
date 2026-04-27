@@ -1,6 +1,7 @@
 import os
 import firebase_admin
 from firebase_admin import credentials, storage, firestore
+import traceback
 
 _initialized = False
 
@@ -18,8 +19,8 @@ def init_firebase(key_path: str = None):
     if not os.path.exists(key_path):
         raise FileNotFoundError(
             f"Firebase key bulunamadi: '{key_path}'\n"
-            "Firebase Console → Project Settings → Service Accounts → "
-            "Generate new private key → 'firebase_key.json' olarak kaydet."
+            "Firebase Console -> Project Settings -> Service Accounts -> "
+            "Generate new private key -> 'firebase_key.json' olarak kaydet."
         )
 
     cred = credentials.Certificate(key_path)
@@ -118,6 +119,7 @@ def add_review(user_name: str, rating: int, comment: str, job_id: str = None) ->
         return True
     except Exception as e:
         print(f"[Firebase] add_review error: {e}")
+        traceback.print_exc()
         return False
 
 def get_reviews(limit: int = 10) -> dict:

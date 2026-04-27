@@ -44,7 +44,7 @@ def _try_init_firebase():
         _firebase_ready = True
         print("[Firebase] Initialized OK")
     except FileNotFoundError as e:
-        print(f"[Firebase] WARNING: {e}  — Firebase disabled, LDR files won't be stored.")
+        print(f"[Firebase] WARNING: {e}  -- Firebase disabled, LDR files won't be stored.")
     except Exception as e:
         print(f"[Firebase] WARNING: {e}  — Firebase disabled.")
 
@@ -99,7 +99,7 @@ def get_model_counter():
     count = 0 # Baseline number
     if _firebase_ready:
         try:
-            from db import get_counter
+            from db import get_counter, get_reviews, add_review
             count += get_counter()
         except Exception as e:
             print(f"[Counter] Error fetching: {e}")
@@ -266,6 +266,36 @@ def download_ldr_cache(job_id, filename):
 
 
 # ────────────────────────────────────────────────────────────────────────────
+# API: REVIEWS
+# ────────────────────────────────────────────────────────────────────────────
+
+@app.route("/api/reviews", methods=["GET"])
+def get_community_reviews():
+    """Fetch recent reviews for the community wall."""
+    from db import get_reviews
+    limit = request.args.get("limit", default=10, type=int)
+    data = get_reviews(limit=limit)
+    return jsonify(data)
+
+
+@app.route("/api/reviews", methods=["POST"])
+def post_review():
+    """Submit a new user review."""
+    from db import add_review
+    data = request.get_json()
+    if not data:
+        return jsonify({"success": False, "error": "No data provided"}), 400
+
+    user_name = data.get("user_name", "Anonymous")
+    rating    = data.get("rating", 5)
+    comment   = data.get("comment", "")
+    job_id    = data.get("job_id")
+
+    success = add_review(user_name, rating, comment, job_id)
+    return jsonify({"success": success})
+
+
+# ────────────────────────────────────────────────────────────────────────────
 # FIREBASE PROXY ROUTES
 # ────────────────────────────────────────────────────────────────────────────
 
@@ -363,8 +393,8 @@ def health():
 
 if __name__ == "__main__":
     print("=" * 50)
-    print("  Grids2Bricks Server  →  http://localhost:5000")
+    print("  Grids2Bricks Server  ->  http://localhost:5000")
     print(f"  Firebase: {'enabled' if _firebase_ready else 'DISABLED (no credentials)'}")
-    print(f"  Frontend: {'built ✓' if os.path.isdir(DIST_DIR) else 'NOT built — run build.sh'}")
+    print(f"  Frontend: {'built OK' if os.path.isdir(DIST_DIR) else 'NOT built -- run build.sh'}")
     print("=" * 50)
     app.run(host="0.0.0.0", port=5000, debug=True)

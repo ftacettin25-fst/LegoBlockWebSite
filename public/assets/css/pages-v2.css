@@ -1051,3 +1051,21 @@
   text-align: right;
   margin-top: auto;
 }
+
+/* Interactive Star Rating */
+.star-rating-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--hairline-2);
+  transition: color var(--t-fast), transform var(--t-fast), fill var(--t-fast);
+  fill: none;
+}
+
+.star-rating-icon.active {
+  color: #FBBF24; /* Amber-400 */
+  fill: #FBBF24;
+}
+
+.star-rating-icon:hover {
+  transform: scale(1.15);
+}
