@@ -160,7 +160,9 @@ function renderCart() {
 
   list.innerHTML = cart.map((it, idx) => `
     <div class="cart-item" data-idx="${idx}">
-      <div class="cart-item__thumb"><i data-lucide="box"></i></div>
+      <div class="cart-item__thumb"${it.thumbUrl ? ` style="background-image:url('${it.thumbUrl}');background-size:cover;background-position:center;background-repeat:no-repeat"` : ''}>
+        ${it.thumbUrl ? '' : '<i data-lucide="box"></i>'}
+      </div>
       <div>
         <div class="cart-item__title">${it.title || 'Custom BrickHeadz'}</div>
         <div class="cart-item__sub">${it.sub || ''}</div>
