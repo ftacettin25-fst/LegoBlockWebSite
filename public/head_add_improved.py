@@ -705,12 +705,12 @@ def find_arm(path):
 # =============================================================================
 
 skin_color = None
-arms_top   = None
-counter    = 0
+arms_top = 13
+counter = 0
 
 
 def calculate_occupancy_matrices(image, binary_mask, x_lines, y_lines, threshold=0.5):
-    global skin_color, counter
+    global skin_color, counter, arms_top
     x_lines = sorted(list(set([int(x) for x in x_lines])))
     y_lines = sorted(list(set([int(y) for y in y_lines])))
     rows    = len(y_lines) - 1
