@@ -577,16 +577,21 @@ def grid_perspective(path):
         output_img = img.copy()
         grid_color = (255, 255, 0)
 
-        left_x = bottom_points[:, 0].min()
-        right_x =  bottom_points[:, 0].max()
-        top_y =  points[:, 1].min()
-        bottom_y =  points[:, 1].max()
+        left_x   = bottom_points[:, 0].min()
+        right_x  = bottom_points[:, 0].max()
+        top_y    = points[:, 1].min()   # contour top (may include head — kept for x-line drawing only)
+        bottom_y = points[:, 1].max()
+
+        # Clamp grid to the known body height only.
+        # The contour top_y may reach the head, adding ghost rows above layer 13
+        # and corrupting the occupancy matrix with head pixel colors.
+        body_top_y = bottom_y - TOTAL_BODY_ROWS * height_px
 
         cursor_y = bottom_y
         cursor_x = left_x + width_px * 2
 
         y_coords = []
-        while cursor_y >= top_y:
+        while cursor_y >= body_top_y:
 
             # cv2.line(image, (start_x, start_y), (end_x, end_y), color, thickness)
             start_point = (int(left_x+width_px*2), int(cursor_y))
@@ -734,7 +739,7 @@ def calculate_occupancy_matrices(image, binary_mask, x_lines, y_lines, threshold
                 mx, my = int((x2 - x1) * 0.2), int((y2 - y1) * 0.2)
                 roi    = image[y1 + my: y2 - my, x1 + mx: x2 - mx]
                 col[r, c] = get_dominant_color(roi)
-            if counter == 0 and arms_top is not None and r == rows - arms_top - 3 and c == 1:
+            if counter == 0 and r == rows - arms_top - 3 and c == 1:
                 skin_color = col[r, c]
 
     return np.flipud(occ), np.flipud(col), cols, rows
@@ -748,7 +753,8 @@ def calculate_occupancy_matrices(image, binary_mask, x_lines, y_lines, threshold
 # Color is assigned by nearest-surface rule using the 4 side views only.
 # =============================================================================
 
-FORCED_DEPTH = 4  # Always produce a solid 4-stud-deep body
+FORCED_DEPTH = 4      # Always produce a solid 4-stud-deep body
+TOTAL_BODY_ROWS = 14  # 1 base-plate row + 6 leg rows + 7 body rows (constant, head excluded)
 
 def calculate_space_matrices(data_map):
     occ_f, col_f = data_map[0]["occ"], data_map[0]["col"]
@@ -847,11 +853,15 @@ def merge_layer(layer_2d, layer_no):
     visited = np.zeros((rows, cols), dtype=bool)
     merged  = []
 
-    if arms_top is not None:
-        if arms_top - 5 <= layer_no <= arms_top - 1:
-            visited[1:3, 0] = True
-            visited[1:3, 3] = True
+    
+    if arms_top - 5 <= layer_no <= arms_top - 1:
+        visited[1:3, 0] = True
+        visited[1:3, 3] = True
+    else:
         if layer_no >= arms_top + 1:
+            # Safety net only: with the TOTAL_BODY_ROWS-clamped grid, layer_no
+            # never exceeds arms_top (13), so this branch should never fire.
+            # Kept here to guard against future grid drift.
             visited[0:4, 0:4] = True
 
     for r in range(rows):
@@ -959,7 +969,7 @@ def save_merged_to_ldr(space_matrix, head_filename, output_filename, hair_data: 
         # Arms
         arms_posx  = 0
         arms_posz  = 1.5 * STUD
-        arms_posy  = -((arms_top - 1) * PLATE_H) if arms_top else 0
+        arms_posy  = -((arms_top - 1) * PLATE_H)
 
         tshirt_color = hair_data.get('top_ldraw_code') if hair_data.get('top_ldraw_code') != '?' else 15
 
