@@ -10,17 +10,18 @@ const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 const ACCEPT = ['image/jpeg', 'image/png', 'image/webp'];
 
 const STAGES = [
-  { id: 's1', label: 'Uploading photo',         icon: 'upload-cloud' },
-  { id: 's2', label: 'AI appearance analysis',  icon: 'scan-face' },
-  { id: 's3', label: 'Generating views',        icon: 'images' },
-  { id: 's4', label: 'Analyzing features',      icon: 'search' },
-  { id: 's5', label: 'Building 3D model',       icon: 'box' },
-  { id: 's6', label: 'Merging bricks',          icon: 'blocks' },
-  { id: 's7', label: 'Finalizing',              icon: 'sparkles' },
+  { id: 's1', label: 'Uploading photo', icon: 'upload-cloud' },
+  { id: 's2', label: 'AI appearance analysis', icon: 'scan-face' },
+  { id: 's3', label: 'Generating views', icon: 'images' },
+  { id: 's4', label: 'Analyzing features', icon: 'search' },
+  { id: 's5', label: 'Building 3D model', icon: 'box' },
+  { id: 's6', label: 'Merging bricks', icon: 'blocks' },
+  { id: 's7', label: 'Finalizing', icon: 'sparkles' },
 ];
 
 let uploadedFile = null;
-let lastResult   = null;
+let lastResult = null;
+let currentRating = 5;
 
 function $(s, root = document) { return root.querySelector(s); }
 
@@ -40,7 +41,7 @@ function setStage(idx, state) {
     const el = $('#' + s.id);
     if (!el) return;
     el.classList.remove('active', 'done');
-    if (i < idx)  el.classList.add('done');
+    if (i < idx) el.classList.add('done');
     if (i === idx && state !== 'done') el.classList.add('active');
     if (i === idx && state === 'done') el.classList.add('done');
   });
@@ -50,7 +51,7 @@ function setStage(idx, state) {
 
 function validate(file) {
   if (!ACCEPT.includes(file.type)) return 'Please upload a JPG, PNG, or WEBP image.';
-  if (file.size > MAX_BYTES)       return 'Image must be smaller than 10 MB.';
+  if (file.size > MAX_BYTES) return 'Image must be smaller than 10 MB.';
   return null;
 }
 
@@ -128,6 +129,19 @@ async function build() {
     showResult(data);
     // Auto-save to the signed-in user's account (silent if not logged in)
     autoSaveBuild(data).catch((err) => console.warn('[create] auto-save:', err));
+
+    // Show review modal after 12 seconds
+    setTimeout(() => {
+      const modal = $('#review-modal');
+      if (modal && !modal.classList.contains('active')) {
+        // Pre-fill name if logged in
+        if (Auth.current && Auth.current.displayName) {
+          const nameInput = $('#review-name');
+          if (nameInput) nameInput.value = Auth.current.displayName;
+        }
+        modal.classList.add('active');
+      }
+    }, 12000);
   } catch (e) {
     clearInterval(timer);
     overlay.classList.remove('active');
@@ -145,10 +159,10 @@ function showResult(data) {
   chipHost.innerHTML = '';
   const pd = data.person_data || {};
   const rows = [
-    ['Hair',   `${pd.hair_color || '—'} ${pd.hair_type || ''}`.trim()],
-    ['Top',    pd.top_clothing_color || '—'],
+    ['Hair', `${pd.hair_color || '—'} ${pd.hair_type || ''}`.trim()],
+    ['Top', pd.top_clothing_color || '—'],
     ['Bottom', pd.bottom_clothing_color || '—'],
-    ['Skin',   pd.skin_color_desc || '—'],
+    ['Skin', pd.skin_color_desc || '—'],
   ];
   rows.forEach(([k, v]) => {
     const chip = document.createElement('div');
@@ -157,7 +171,7 @@ function showResult(data) {
     chipHost.appendChild(chip);
   });
 
-  $('#download-link').href     = data.download_url;
+  $('#download-link').href = data.download_url;
   $('#download-link').download = 'brickheadz.ldr';
 
   if (window.initLdrViewer) window.initLdrViewer(data.ldr_url);
@@ -225,9 +239,89 @@ function reset() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function initReviewModal() {
+  const modal = $('#review-modal');
+  const stars = document.querySelectorAll('.star-rating-icon');
+  const submitBtn = $('#review-submit-btn');
+  const skipBtn = $('#review-skip-btn');
+
+  if (!modal) return;
+
+  // Star selection logic
+  stars.forEach(star => {
+    star.addEventListener('click', () => {
+      currentRating = parseInt(star.getAttribute('data-rating'));
+      updateStars();
+    });
+  });
+
+  function updateStars() {
+    stars.forEach(star => {
+      const rating = parseInt(star.getAttribute('data-rating'));
+      if (rating <= currentRating) {
+        star.classList.add('active');
+      } else {
+        star.classList.remove('active');
+      }
+    });
+  }
+
+  // Initial star state
+  updateStars();
+
+  if (skipBtn) {
+    skipBtn.addEventListener('click', () => {
+      modal.classList.remove('active');
+    });
+  }
+
+  if (submitBtn) {
+    submitBtn.addEventListener('click', async () => {
+      const name = $('#review-name').value.trim() || 'Anonymous';
+      const comment = $('#review-comment').value.trim();
+
+      submitBtn.disabled = true;
+      const originalText = submitBtn.innerHTML;
+      submitBtn.textContent = 'Submitting...';
+
+      try {
+        const resp = await fetch('/api/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_name: name,
+            rating: currentRating,
+            comment: comment,
+            job_id: lastResult ? lastResult.job_id : null
+          })
+        });
+
+        const data = await resp.json();
+        if (data.success) {
+          toast('Thank you for your review!', 'ok');
+          modal.classList.remove('active');
+          // Reset for next time
+          $('#review-comment').value = '';
+          currentRating = 5;
+          updateStars();
+        } else {
+          throw new Error(data.error || 'Failed to submit');
+        }
+      } catch (err) {
+        toast('Could not save review', 'err');
+        console.error(err);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+    });
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initNav();
   initReveal();
+  initReviewModal();
 
   const dz = $('#dropzone');
   const input = $('#file-input');
@@ -257,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#cart-btn').addEventListener('click', addToCart);
 
   // If we arrive with ?ldr=<url> (e.g. from the order page "My builds"),
-   // skip the upload step and load the saved model straight into the viewer.
+  // skip the upload step and load the saved model straight into the viewer.
   const params = new URLSearchParams(location.search);
   const presetLdr = params.get('ldr');
   if (presetLdr) {
