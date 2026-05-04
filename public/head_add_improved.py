@@ -787,16 +787,21 @@ def calculate_space_matrices(data_map):
                 final_color = 15
  
                 if min_dist == dist_front:
-                    final_color = col_f[k, i]
+                    k_idx = min(k, col_f.shape[0] - 1)
+                    c_idx = min(i, col_f.shape[1] - 1)
+                    final_color = col_f[k_idx, c_idx]
                 elif min_dist == dist_back:
+                    k_idx = min(k, col_b.shape[0] - 1)
                     c_idx = min(i, col_b.shape[1] - 1)
-                    final_color = col_b[k, c_idx]
+                    final_color = col_b[k_idx, c_idx]
                 elif min_dist == dist_left:
+                    k_idx = min(k, col_l.shape[0] - 1)
                     j_idx = min(j, col_l.shape[1] - 1)
-                    final_color = col_l[k, j_idx]
+                    final_color = col_l[k_idx, j_idx]
                 elif min_dist == dist_right:
+                    k_idx = min(k, col_r.shape[0] - 1)
                     j_idx = min(j, col_r.shape[1] - 1)
-                    final_color = col_r[k, j_idx]
+                    final_color = col_r[k_idx, j_idx]
  
                 space_matrix[i, j, k] = final_color
  
