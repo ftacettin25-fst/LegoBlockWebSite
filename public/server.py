@@ -138,7 +138,7 @@ def create_brickheadz():
             fal_photo_url = fal_client.upload_file(photo_path)
 
             # 3. Reset pipeline globals
-            pl.arms_top   = None
+            pl.arms_top   = 13
             pl.skin_color = None
             pl.counter    = 0
 
@@ -156,8 +156,8 @@ def create_brickheadz():
             if not image_paths[0]:
                 raise RuntimeError("Front view could not be generated")
 
-            # 6. Arm detection
-            pl.arms_top = pl.find_arm(image_paths[0])
+            # 6. Arm detection (hardcoded to 13)
+            pl.arms_top = 13
 
             # 7. Grid analysis
             pl.counter    = 0
