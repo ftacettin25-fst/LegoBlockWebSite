@@ -58,6 +58,7 @@ HAIR_LDR_MAP = {
     "short_asymmetrical_swept_female":  "hair_snippets/short_asymmetrical_swept_female.ldr",
     "pony_tail_female":                 "hair_snippets/pony_tail_female.ldr",
     "short_messy_clean_male":           "hair_snippets/short_messy_clean_male.ldr",
+    "short_messy_clean_short_beard_male": "hair_snippets/short_messy_clean_short_beard_male.ldr",
     #"afro":                             "hair_snippets/afro.ldr",
 }
 
