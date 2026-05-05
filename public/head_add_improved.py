@@ -1064,7 +1064,10 @@ def save_merged_to_ldr(space_matrix, head_filename, output_filename, hair_data: 
         # Manual offset for specific hair file because its internal base is missing, 
         # causing the auto-align logic to pull it exactly 2 bricks too low.
         if hair_type == "short_messy_clean_male":
-            shift_y -= 48.0  # Shift up by 2 standard bricks
+            shift_y -= 24.0  # Shift up by 1 standard bricks
+
+        if hair_type == "short_messy_clean_short_beard_male":
+            shift_y -= 24.0  # Shift up by 1 standard bricks
         
         print(f"  [HEAD ALIGN] Snippet Base Y: {snippet_bottom:.1f} → Target: {target_top_y:.1f} (Shift: {shift_y:+.1f})")
         print(f"  [HEAD ALIGN] Snippet Mid X/Z: {snippet_center_x:.1f},{snippet_center_z:.1f} → Target: {target_center_x:.1f},{target_center_z:.1f}")
