@@ -59,7 +59,6 @@ HAIR_LDR_MAP = {
     "pony_tail_female":                 "hair_snippets/pony_tail_female.ldr",
     "short_messy_clean_male":           "hair_snippets/short_messy_clean_male.ldr",
     #"afro":                             "hair_snippets/afro.ldr",
-    "default":                          "hair_snippets/bald_male.ldr",  # fallback
 }
 
 # =============================================================================
@@ -591,7 +590,7 @@ def grid_perspective(path):
         cursor_x = left_x + width_px * 2
 
         y_coords = []
-        while cursor_y >= body_top_y:
+        while cursor_y >= body_top_y-height_px*0.5:
 
             # cv2.line(image, (start_x, start_y), (end_x, end_y), color, thickness)
             start_point = (int(left_x+width_px*2), int(cursor_y))
