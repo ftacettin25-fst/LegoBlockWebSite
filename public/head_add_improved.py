@@ -429,7 +429,7 @@ def analyze_person(photo_path: str, person_number: int) -> dict:
     except (json.JSONDecodeError, ValueError):
         print("  [GEMINI] WARNING: Could not parse JSON, using defaults.")
         person_data = {
-            "hair_type":             "default",
+            "hair_type":             "bald_male",
             "hair_color":            "unknown",
             "hair_ldraw_code":       0,
             "top_clothing_color":    "unknown",
@@ -443,8 +443,8 @@ def analyze_person(photo_path: str, person_number: int) -> dict:
 
     # Validate hair_type
     if person_data.get("hair_type") not in HAIR_LDR_MAP:
-        print(f"  [GEMINI] Unknown hair_type '{person_data.get('hair_type')}', defaulting.")
-        person_data["hair_type"] = "default"
+        print(f"  [GEMINI] Unknown hair_type '{person_data.get('hair_type')}', defaulting to bald_male.")
+        person_data["hair_type"] = "bald_male"
 
     person_data["person_number"] = person_number
 
@@ -941,9 +941,9 @@ def save_merged_to_ldr(space_matrix, head_filename, output_filename, hair_data: 
     offset_y = -(max_gz) * PLATE_H
 
     # Determine hair snippet path
-    hair_type    = hair_data.get("hair_type", "default")       if hair_data else "default"
+    hair_type    = hair_data.get("hair_type", "bald_male")       if hair_data else "bald_male"
     hair_color   = hair_data.get("hair_ldraw_code", 0)         if hair_data else 0
-    hair_snippet = HAIR_LDR_MAP.get(hair_type, HAIR_LDR_MAP["default"])
+    hair_snippet = HAIR_LDR_MAP.get(hair_type, HAIR_LDR_MAP["bald_male"])
 
     print(f"\n[HAIR] Using hair type  : {hair_type}")
     print(f"[HAIR] Using hair color : LDraw code {hair_color}")
@@ -1185,8 +1185,8 @@ def main():
 
         # Dosya isimlerini JSON'daki person_number'dan türet
         n             = person_data.get("person_number", args.number)
-        hair_type_key = person_data.get("hair_type", "default")
-        head_file     = HAIR_LDR_MAP.get(hair_type_key, HAIR_LDR_MAP["default"])
+        hair_type_key = person_data.get("hair_type", "bald_male")
+        head_file     = HAIR_LDR_MAP.get(hair_type_key, HAIR_LDR_MAP["bald_male"])
         output_file   = f"model_merged_{n}.ldr"
 
         save_merged_to_ldr(

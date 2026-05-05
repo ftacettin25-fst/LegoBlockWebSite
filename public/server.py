@@ -182,8 +182,8 @@ def create_brickheadz():
 
             # 9. Save LDR
             head_file = pl.HAIR_LDR_MAP.get(
-                person_data.get("hair_type", "default"),
-                pl.HAIR_LDR_MAP["default"],
+                person_data.get("hair_type", "bald_male"),
+                pl.HAIR_LDR_MAP["bald_male"],
             )
             now_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
             output_name = f"brickheadz_{now_str}_{job_id[:8]}.ldr"
