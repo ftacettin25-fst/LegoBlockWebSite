@@ -25,7 +25,7 @@ TEMPLATE_PATHS = {
 }
 SHIRT_TYPE_CHOICES = [
     "plain short sleeve t-shirt", "plain long sleeve t-shirt", "sleeveless tank top",
-    "v-neck t-shirt", "turtleneck sweater", "horizontally striped t-shirt", "vertically striped t-shirt",
+    "v-neck t-shirt", "turtleneck sweater", "horizontally striped t-shirt", "vertically striped t-shirt/jersey",
     "plaid flannel shirt", "hoodie", "polo shirt with collar", 
     "button-up shirt", "open jacket over a t-shirt", "suit and tie"
 ]
