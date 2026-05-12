@@ -3,7 +3,7 @@
 // real call to POST /api/create on the Flask backend.
 // =========================================================
 import { initNav, initReveal, getCart, setCart, toast } from './nav.js';
-import { saveBuild } from './builds.js';
+import { saveBuild, updateBuild } from './builds.js';
 import { Auth } from './auth.js';
 
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
@@ -129,7 +129,7 @@ async function build() {
     lastResult = data;
     showResult(data);
     // Auto-save to the signed-in user's account (silent if not logged in)
-    autoSaveBuild(data).catch((err) => console.warn('[create] auto-save:', err));
+    await autoSaveBuild(data).catch((err) => console.warn('[create] auto-save:', err));
     
     // Auto-generate and upload PDF in the background
     autoGenerateAndUploadPdf(data);
@@ -224,7 +224,10 @@ async function autoSaveBuild(data) {
       personData: data.person_data || null,
     },
   });
-  if (saved) toast('Saved to your account', 'ok');
+  if (saved) {
+    toast('Saved to your account', 'ok');
+    data.savedDocId = saved;
+  }
 }
 
 async function autoGenerateAndUploadPdf(data) {
@@ -251,6 +254,9 @@ async function autoGenerateAndUploadPdf(data) {
     const out = await res.json();
     if (out.success) {
       console.log('[create] PDF uploaded successfully:', out.pdf_url);
+      if (data.savedDocId) {
+        updateBuild(data.savedDocId, { pdfUrl: out.pdf_url }).catch(console.warn);
+      }
     } else {
       console.warn('[create] PDF upload failed:', out.error);
     }

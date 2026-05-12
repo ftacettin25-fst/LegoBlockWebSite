@@ -14,6 +14,7 @@ import {
   orderBy,
   onSnapshot,
   serverTimestamp,
+  updateDoc,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const db = getFirestore(app);
@@ -45,6 +46,27 @@ export async function saveBuild({ ldrUrl, thumbDataUrl = null, name = 'BrickHead
   } catch (e) {
     console.warn('[builds] saveBuild error:', e);
     return null;
+  }
+}
+
+/**
+ * Update an existing build document.
+ * @param {string} docId
+ * @param {object} updates
+ * @returns {Promise<boolean>}
+ */
+export async function updateBuild(docId, updates) {
+  try {
+    const { Auth } = await import('./auth.js');
+    if (!Auth.current) return false;
+
+    const uid = Auth.current.uid;
+    const docRef = doc(db, 'users', uid, 'builds', docId);
+    await updateDoc(docRef, updates);
+    return true;
+  } catch (e) {
+    console.warn('[builds] updateBuild error:', e);
+    return false;
   }
 }
 
