@@ -68,26 +68,16 @@ window.initLdrViewer = function (ldrUrl) {
   ldrawLoader.preloadMaterials('/static/ldraw/LDConfig.ldr').then(() => loadModel()).catch(() => loadModel());
 
   // ===== PDF BUILD GUIDE ENGINE (create page only) =====
-  const pdfBtn = document.getElementById('btn-pdf');
-  if (pdfBtn) {
-    const newBtn = pdfBtn.cloneNode(true);
-    pdfBtn.parentNode.replaceChild(newBtn, pdfBtn);
+  window.generateBuildGuidePdfBlob = async function (ldrUrlArg, onProgress) {
+    const url = ldrUrlArg || ldrUrl;
+    if (!loadedModelGroup) throw new Error('3D model is still loading. Please wait a moment.');
 
-    newBtn.addEventListener('click', async () => {
-      if (!loadedModelGroup) { alert('3D model is still loading. Please wait a moment.'); return; }
-      newBtn.style.opacity = '0.7';
-      newBtn.disabled = true;
-      const originalLabel = newBtn.innerHTML;
+    const delay = ms => new Promise(r => setTimeout(r, ms));
+    if (onProgress) onProgress('Fetching model data…');
+    let ldrText;
+    try { ldrText = await fetch(url).then(r => r.text()); }
+    catch (e) { throw new Error('Could not load LDR file: ' + e.message); }
 
-      const delay = ms => new Promise(r => setTimeout(r, ms));
-
-      newBtn.textContent = 'Fetching model data…';
-      let ldrText;
-      try { ldrText = await fetch(ldrUrl).then(r => r.text()); }
-      catch (e) {
-        alert('Could not load LDR file: ' + e.message);
-        newBtn.style.opacity = '1'; newBtn.disabled = false; newBtn.innerHTML = originalLabel; return;
-      }
 
       const colorMap = {
         "0": "#05131D", "1": "#0055BF", "2": "#237841", "4": "#C91A09", "14": "#F2CD37",
@@ -117,8 +107,7 @@ window.initLdrViewer = function (ldrUrl) {
         });
       });
       if (partLines.length === 0) {
-        alert('No brick data found in the LDR file.');
-        newBtn.style.opacity = '1'; newBtn.disabled = false; newBtn.innerHTML = originalLabel; return;
+        throw new Error('No brick data found in the LDR file.');
       }
 
       const indicesByY = {};
@@ -205,7 +194,7 @@ window.initLdrViewer = function (ldrUrl) {
       const contentTop = 33, contentH = pdfH - contentTop - 12;
 
       for (let stepIdx = 0; stepIdx < buildSteps.length; stepIdx++) {
-        newBtn.textContent = `Step ${stepIdx + 1} / ${buildSteps.length}`;
+        if (onProgress) onProgress(`Step ${stepIdx + 1} / ${buildSteps.length}`);
         await delay(30);
         const stepYs = buildSteps[stepIdx];
         const newParts = {};
@@ -327,13 +316,39 @@ window.initLdrViewer = function (ldrUrl) {
       pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8); setText(C.accentSoft);
       pdf.text(`${buildSteps.length} steps  ·  ${partLines.length} bricks total`, pdfW / 2, pdfH * 0.80, { align: 'center' });
 
-      pdf.save('Grids2Bricks_Build_Guide.pdf');
+      // Return as Blob (caller decides whether to save or upload)
+      const blob = pdf.output('blob');
+      
+      // Restore camera
       loadedModelGroup.traverse(obj => { obj.visible = true; });
       camera.position.copy(savedCamPos); controls.target.copy(savedTarget);
       camera.lookAt(savedTarget); controls.update(); renderer.render(scene, camera);
-      newBtn.innerHTML = originalLabel; newBtn.style.opacity = '1'; newBtn.disabled = false;
+      
+      return blob;
+  };
+
+  const pdfBtn = document.getElementById('btn-pdf');
+  if (pdfBtn) {
+    const newBtn = pdfBtn.cloneNode(true);
+    pdfBtn.parentNode.replaceChild(newBtn, pdfBtn);
+    newBtn.addEventListener('click', async () => {
+      if (!loadedModelGroup) { alert('3D model is still loading. Please wait a moment.'); return; }
+      newBtn.style.opacity = '0.7'; newBtn.disabled = true;
+      const originalLabel = newBtn.innerHTML;
+      try {
+        const blob = await window.generateBuildGuidePdfBlob(ldrUrl, (msg) => { newBtn.textContent = msg; });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'Grids2Bricks_Build_Guide.pdf';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      } catch (e) {
+        alert('PDF generation failed: ' + e.message);
+      } finally {
+        newBtn.innerHTML = originalLabel; newBtn.style.opacity = '1'; newBtn.disabled = false;
+      }
     });
-  } // end if (pdfBtn)
+  }
 
 
   // ===== VIEW CYCLE ENGINE =====

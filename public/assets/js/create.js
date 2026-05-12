@@ -8,6 +8,7 @@ import { Auth } from './auth.js';
 
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 const ACCEPT = ['image/jpeg', 'image/png', 'image/webp'];
+const ETSY_URL = 'https://www.etsy.com/listing/4503080155/custom-brickheadz-instructions-from?sr_prefetch=1&pf_from=shop_home&ref=shop_home_active_1&dd=1&logging_key=2635dcdac3790b57013a1f38d0d2e168247fc064%3A4503080155';
 
 const STAGES = [
   { id: 's1', label: 'Uploading photo', icon: 'upload-cloud' },
@@ -129,6 +130,9 @@ async function build() {
     showResult(data);
     // Auto-save to the signed-in user's account (silent if not logged in)
     autoSaveBuild(data).catch((err) => console.warn('[create] auto-save:', err));
+    
+    // Auto-generate and upload PDF in the background
+    autoGenerateAndUploadPdf(data);
 
     // Show review modal after 12 seconds
     setTimeout(() => {
@@ -171,8 +175,25 @@ function showResult(data) {
     chipHost.appendChild(chip);
   });
 
-  $('#download-link').href = data.download_url;
-  $('#download-link').download = 'brickheadz.ldr';
+  // Download LDR → Etsy shop
+  const dlLink = $('#download-link');
+  dlLink.href = ETSY_URL;
+  dlLink.target = '_blank';
+  dlLink.rel = 'noopener noreferrer';
+  dlLink.removeAttribute('download');
+
+  // PDF Build Guide → Etsy shop
+  const pdfBtn = $('#btn-pdf');
+  if (pdfBtn) {
+    // Replace button with anchor to avoid re-binding issues on multiple builds
+    const pdfLink = document.createElement('a');
+    pdfLink.className = pdfBtn.className;
+    pdfLink.href = ETSY_URL;
+    pdfLink.target = '_blank';
+    pdfLink.rel = 'noopener noreferrer';
+    pdfLink.innerHTML = pdfBtn.innerHTML;
+    pdfBtn.replaceWith(pdfLink);
+  }
 
   if (window.initLdrViewer) window.initLdrViewer(data.ldr_url);
   $('#result').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -204,6 +225,38 @@ async function autoSaveBuild(data) {
     },
   });
   if (saved) toast('Saved to your account', 'ok');
+}
+
+async function autoGenerateAndUploadPdf(data) {
+  if (!window.generateBuildGuidePdfBlob) return;
+  if (!data.folder_time) return; // Need server timestamp folder to store it next to the LDR
+
+  // Give the viewer enough time to load and stabilize before taking screenshots
+  await new Promise(r => setTimeout(r, 2000));
+
+  try {
+    console.log('[create] Starting background PDF generation...');
+    const blob = await window.generateBuildGuidePdfBlob(data.ldr_url);
+    
+    const formData = new FormData();
+    formData.append('pdf', blob, 'build_guide.pdf');
+    formData.append('job_id', data.job_id);
+    formData.append('folder_time', data.folder_time);
+    
+    const res = await fetch('/api/upload-pdf', {
+      method: 'POST',
+      body: formData
+    });
+    
+    const out = await res.json();
+    if (out.success) {
+      console.log('[create] PDF uploaded successfully:', out.pdf_url);
+    } else {
+      console.warn('[create] PDF upload failed:', out.error);
+    }
+  } catch(e) {
+    console.warn('[create] Background PDF generation failed:', e);
+  }
 }
 
 function addToCart() {
@@ -359,7 +412,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const result = $('#result');
     if (result) result.classList.add('visible');
     const dl = $('#download-link');
-    if (dl) { dl.href = presetLdr; dl.download = `${name}.ldr`; }
+    if (dl) {
+      dl.href = ETSY_URL;
+      dl.target = '_blank';
+      dl.rel = 'noopener noreferrer';
+      dl.removeAttribute('download');
+    }
     // Wait until ldr-viewer.js has registered window.initLdrViewer AND
     // the #result panel has real layout dimensions (it starts display:none).
     const tryOpen = (attempt = 0) => {

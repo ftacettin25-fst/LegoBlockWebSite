@@ -233,6 +233,7 @@ def create_brickheadz():
                 "ldr_url":     ldr_url,
                 "download_url": download_url,
                 "person_data": person_data,
+                "folder_time": now_str,
             })
 
         except Exception as e:
@@ -241,6 +242,40 @@ def create_brickheadz():
 
         finally:
             shutil.rmtree(work_dir, ignore_errors=True)
+
+@app.route("/api/upload-pdf", methods=["POST"])
+def upload_pdf():
+    if not _firebase_ready:
+        return jsonify({"error": "Firebase not configured"}), 503
+        
+    if "pdf" not in request.files:
+        return jsonify({"error": "No PDF provided"}), 400
+        
+    pdf_file = request.files["pdf"]
+    job_id = request.form.get("job_id", "unknown")
+    folder_time = request.form.get("folder_time")
+    
+    if not folder_time:
+        return jsonify({"error": "No folder_time provided"}), 400
+        
+    try:
+        from db import upload_blob_to_storage
+        work_dir = tempfile.mkdtemp(prefix="g2b_pdf_up_")
+        
+        pdf_name = f"brickheadz_{folder_time}_{job_id[:8]}.pdf"
+        pdf_path = os.path.join(work_dir, pdf_name)
+        pdf_file.save(pdf_path)
+        
+        remote_pdf_path = f"jobs/{folder_time}/{pdf_name}"
+        upload_blob_to_storage(pdf_path, remote_pdf_path)
+        
+        pdf_url = f"/api/download/{remote_pdf_path}"
+        shutil.rmtree(work_dir, ignore_errors=True)
+        return jsonify({"success": True, "pdf_url": pdf_url})
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
 
 
 # ── In-memory LDR cache (fallback when Firebase is unavailable) ──────────────
