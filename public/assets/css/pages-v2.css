@@ -393,6 +393,27 @@
   border-radius: inherit;
 }
 
+/* Clickable LinkedIn frame variant */
+.team-member__frame--link {
+  text-decoration: none;
+  flex-direction: column;
+  color: var(--accent-deep);
+  transition: border-color var(--t-fast), background var(--t-fast), transform var(--t-fast);
+}
+
+.team-member__frame--link:hover {
+  border-color: var(--accent-deep);
+  background:
+    var(--stud-pattern),
+    linear-gradient(135deg, #EDE9FA, #D6CCF5);
+  background-size: 24px 24px, cover;
+  transform: translateY(-3px);
+}
+
+.team-member__frame--link i {
+  color: var(--accent-deep);
+}
+
 
 /* FAQ */
 .faq {

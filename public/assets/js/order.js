@@ -187,9 +187,11 @@ function renderCart() {
       <div class="cart-row"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
       <div class="cart-row"><span>Shipping</span><span>${shipping === 0 ? 'Free' : '$' + shipping.toFixed(2)}</span></div>
       <div class="cart-row total"><span>Total</span><span>$${total.toFixed(2)}</span></div>
-      <button class="btn btn--primary btn--block" style="margin-top:14px" id="checkout-btn">
-        <i data-lucide="credit-card"></i> Checkout
-      </button>
+      <a class="btn btn--primary btn--block" style="margin-top:14px" id="checkout-btn"
+         href="https://www.etsy.com/shop/Grids2Bricks?ref=dashboard-header"
+         target="_blank" rel="noopener noreferrer">
+        <i data-lucide="shopping-bag"></i> Order on Etsy
+      </a>
     </div>`;
 
   list.querySelectorAll('.cart-item').forEach((row) => {
@@ -198,7 +200,7 @@ function renderCart() {
     row.querySelector('[data-act="dec"]').onclick = () => { const c = getCart(); c[idx].qty = Math.max(1, c[idx].qty - 1); setCart(c); renderCart(); };
     row.querySelector('[data-act="rm"]').onclick  = () => { const c = getCart(); c.splice(idx, 1); setCart(c); renderCart(); };
   });
-  $('#checkout-btn')?.addEventListener('click', () => toast('Checkout coming soon', 'ok'));
+  // The "Order on Etsy" button is an <a> tag — no extra click handler needed.
 
   if (window.lucide) window.lucide.createIcons();
 }
