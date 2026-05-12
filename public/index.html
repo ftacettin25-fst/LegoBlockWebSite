@@ -367,7 +367,28 @@
         <h2>See it in 3D</h2>
       </div>
       <div class="card viewer-card reveal">
-        <div style="position:relative;">
+        <!-- Toggle pill -->
+        <div class="viewer-toggle" id="viewer-toggle">
+          <button class="viewer-toggle__btn active" data-mode="3d" id="toggle-3d">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+              <line x1="12" y1="22.08" x2="12" y2="12"/>
+            </svg>
+            3D
+          </button>
+          <button class="viewer-toggle__btn" data-mode="original" id="toggle-original">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            Original
+          </button>
+        </div>
+        <!-- 3D viewer pane (default) -->
+        <div id="viewer-pane-3d" style="position:relative;">
           <div class="viewer-card__stage" id="ldr-viewer" style="min-height: 400px; width: 100%;"></div>
           <button data-view-cycle aria-label="Cycle camera view" class="viewer-orbit-btn" title="Change view">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -379,9 +400,17 @@
             </svg>
           </button>
         </div>
+        <!-- Original image pane (hidden by default) -->
+        <div id="viewer-pane-original" style="display:none;">
+          <div class="viewer-card__stage viewer-original-stage">
+            <img src="images/messi_barcelona.png" alt="Messi Barcelona original photo"
+              style="width:100%;height:100%;object-fit:contain;border-radius:inherit;" />
+          </div>
+        </div>
       </div>
     </div>
   </section>
+
 
   <!-- Team -->
   <div class="team__grid team__grid--founders">
@@ -400,7 +429,7 @@
             <circle cx="4" cy="4" r="2" />
           </svg>
         </a>
-        <a href="mailto:fikret@example.com" aria-label="Email Fikret">
+        <a href="mailto:ftacettin25@ku.edu.tr" aria-label="Email Fikret">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="4" width="20" height="16" rx="2" />
@@ -414,13 +443,11 @@
     <div class="team-member team-member--model reveal">
       <a href="https://www.linkedin.com/in/fikret-selim-tacettin-668187233/" target="_blank" rel="noopener"
         class="team-member__frame team-member__frame--link" aria-label="Fikret on LinkedIn">
-        <i data-lucide="linkedin" style="width:40px;height:40px;opacity:.4"></i>
-        <span style="font-size:.7rem;opacity:.5;margin-top:6px">View on LinkedIn</span>
+        <img src="images/fikret_selim_tacettin.png" alt="Fikret" />
       </a>
       <a href="https://www.linkedin.com/in/halil-ibrahim-yenit%C3%BCrk-2a8a67245/" target="_blank" rel="noopener"
         class="team-member__frame team-member__frame--link" aria-label="Halil on LinkedIn">
-        <i data-lucide="linkedin" style="width:40px;height:40px;opacity:.4"></i>
-        <span style="font-size:.7rem;opacity:.5;margin-top:6px">View on LinkedIn</span>
+        <img src="images/halil_ibrahim_yenitürk.png" alt="Halil" />
       </a>
     </div>
 
@@ -439,7 +466,7 @@
             <circle cx="4" cy="4" r="2" />
           </svg>
         </a>
-        <a href="mailto:halil@example.com" aria-label="Email Halil">
+        <a href="mailto:hyeniturk25@ku.edu.tr" aria-label="Email Halil">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="4" width="20" height="16" rx="2" />
@@ -546,7 +573,25 @@
       initReveal();
       if (window.initLdrViewer) window.initLdrViewer('/messi_barcelona.ldr');
 
-      // Carousel Logic
+      // Viewer 3D ↔ Original toggle
+      const pane3d       = document.getElementById('viewer-pane-3d');
+      const paneOriginal = document.getElementById('viewer-pane-original');
+      document.getElementById('viewer-toggle')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('.viewer-toggle__btn');
+        if (!btn) return;
+        const mode = btn.dataset.mode;
+        document.querySelectorAll('.viewer-toggle__btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (mode === '3d') {
+          pane3d.style.display       = '';
+          paneOriginal.style.display = 'none';
+        } else {
+          pane3d.style.display       = 'none';
+          paneOriginal.style.display = '';
+        }
+      });
+
+
       const track = document.getElementById('heroCarouselTrack');
       const slides = document.querySelectorAll('.hero-carousel-slide');
       const prevBtn = document.querySelector('.hero-carousel-prev');
